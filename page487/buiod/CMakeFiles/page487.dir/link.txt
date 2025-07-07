@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/page487.dir/page487.c.o -o page487 

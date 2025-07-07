@@ -1,0 +1,83 @@
+Creating a persistent file access system in C involves writing data to a file and reading it back later. Below is an example of a simple program that demonstrates how to create, write to, and read from a file in C. This program will create a file, write some data to it, and then read the data back.
+
+### Example Code: Persistent File Access in C
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+void writeToFile(const char *filename) {
+    FILE *file = fopen(filename, "w"); // Open the file for writing
+    if (file == NULL) {
+        perror("Error opening file for writing");
+        return;
+    }
+
+    fprintf(file, "Hello, this is a persistent file access example.\n");
+    fprintf(file, "You can store data here.\n");
+    fclose(file); // Close the file
+}
+
+void readFromFile(const char *filename) {
+    FILE *file = fopen(filename, "r"); // Open the file for reading
+    if (file == NULL) {
+        perror("Error opening file for reading");
+        return;
+    }
+
+    char buffer[256];
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+        printf("%s", buffer); // Print each line read from the file
+    }
+    fclose(file); // Close the file
+}
+
+int main() {
+    const char *filename = "example.txt";
+
+    writeToFile(filename); // Write data to the file
+    printf("Data written to %s.\n", filename);
+
+    printf("Reading data from %s:\n", filename);
+    readFromFile(filename); // Read data from the file
+
+    return 0;
+}
+```
+
+### Explanation:
+
+1. **Include Headers**: The program includes `<stdio.h>` for file operations and `<stdlib.h>` for general utilities.
+
+2. **writeToFile Function**: This function opens a file in write mode (`"w"`), writes some sample text to it, and then closes the file.
+
+3. **readFromFile Function**: This function opens the same file in read mode (`"r"`), reads its content line by line, and prints it to the console.
+
+4. **main Function**: The `main` function defines the filename, calls the `writeToFile` function to create and write to the file, and then calls the `readFromFile` function to read and display the content.
+
+### How to Compile and Run the Program:
+
+1. **Save the Code**: Save the code to a file named `persistent_file_access.c`.
+
+2. **Compile the Code**: Open a terminal and navigate to the directory where the file is saved. Use the following command to compile the code:
+   ```bash
+   gcc -o persistent_file_access persistent_file_access.c
+   ```
+
+3. **Run the Program**: Execute the compiled program:
+   ```bash
+   ./persistent_file_access
+   ```
+
+### Output:
+You should see output similar to the following:
+
+```
+Data written to example.txt.
+Reading data from example.txt:
+Hello, this is a persistent file access example.
+You can store data here.
+```
+
+This example demonstrates basic file operations in C, allowing you to persist data between program executions. 
+You can modify the content written to the file or extend the functionality as needed.

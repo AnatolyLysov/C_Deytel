@@ -1,0 +1,2 @@
+Hello, this is a persistent file access example.
+You can store data here.

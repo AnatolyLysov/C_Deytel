@@ -1,0 +1,36 @@
+To create a `CMakeLists.txt` file that compiles a C file named `page487.c`, you can use the following example code. This assumes that you want 
+to create a simple executable from the C source file.
+
+Here’s a sample `CMakeLists.txt`:
+
+```cmake
+# Specify the minimum version of CMake required
+cmake_minimum_required(VERSION 3.10)
+
+# Set the project name
+project(Page487Project C)
+
+# Add the executable target
+add_executable(page487 page487.c)
+```
+
+### Instructions:
+
+1. Create a file named `CMakeLists.txt` in the same directory as `page487.c`.
+2. Copy and paste the above code into `CMakeLists.txt`.
+3. Open a terminal and navigate to the directory containing these files.
+4. Create a build directory:
+   ```bash
+   mkdir build
+   cd build
+   ```
+5. Run CMake to configure the project:
+   ```bash
+   cmake ..
+   ```
+6. Build the project:
+   ```bash
+   make
+   ```
+
+This will compile `page487.c` and create an executable named `page487` in the `build` directory. Adjust the project name and executable name as needed.

@@ -1,0 +1,17 @@
+BITO
+write code to CMakeLisis.txt to compile  page487.c
+------------------
+use_CMakeLists.txt
+--------------------------
+aikidance@aikidance:~/C_Deytel$ cmake --version
+cmake version 3.28.3
+---------------
+mkdir build
+cd build
+----------
+cmake ..
+make
+-------------
+./page487
+-------------
+
