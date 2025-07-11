@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/page530.dir/page530.c.o -o page530 
