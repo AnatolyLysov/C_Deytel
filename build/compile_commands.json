@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/aikidance/C_Deytel/build",
+  "command": "/usr/bin/gcc   -g -o CMakeFiles/page530.dir/page530.c.o -c /home/aikidance/C_Deytel/Part12_data_strutures/page530/page530.c",
+  "file": "/home/aikidance/C_Deytel/Part12_data_strutures/page530/page530.c",
+  "output": "CMakeFiles/page530.dir/page530.c.o"
+}
+]
