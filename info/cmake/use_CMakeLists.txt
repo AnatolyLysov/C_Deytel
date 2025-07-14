@@ -1,4 +1,5 @@
-To create a `CMakeLists.txt` file that compiles a C file named `page487.c`, you can use the following example code. This assumes that you want 
+To create a `CMakeLists.txt` file that compiles a C file named `page487.c`, you can use the following example code. 
+This assumes that you want 
 to create a simple executable from the C source file.
 
 Here’s a sample `CMakeLists.txt`:
@@ -33,4 +34,5 @@ add_executable(page487 page487.c)
    make
    ```
 
-This will compile `page487.c` and create an executable named `page487` in the `build` directory. Adjust the project name and executable name as needed.
+This will compile `page487.c` and create an executable named `page487` in the `build` directory. 
+Adjust the project name and executable name as needed.
