@@ -1,17 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NODECNT 10
-
+#define NODECNT 100
 
 int main(){
-    struct node{
+    struct node_lbl{
         /* data */
         int i;
-        struct node *pNode;
+        struct node_lbl *pNode;
 
     };
-    struct node *pMem = malloc(sizeof(struct node) * NODECNT);
-    printf("%p\n",pMem);
+    void *pChain = calloc(NODECNT,sizeof(struct node_lbl));
+    
+    if (pChain == NULL)
+    {
+       printf("memory allocation error");
+       exit(1);
+    }
+   
+    struct node_lbl *pNode = pChain;
+    
+    for(int i = 0; i <= 99; i++){
+        pNode->i = i;
+        pNode ++;
+    } 
+
     return 0;
 }

@@ -1,0 +1,91 @@
+Debugging with CMake involves a few steps to ensure that your build configuration is set up correctly for debugging.
+Here’s a general guide to help you debug your CMake-based project:
+
+### Step 1: Set Up Your CMakeLists.txt
+
+Ensure that your `CMakeLists.txt` file is configured to include debugging information. 
+You can do this by setting the build type to `Debug`. Here’s how you can do it:
+
+```cmake
+cmake_minimum_required(VERSION 3.10)
+project(MyProject)
+
+# Set the build type to Debug
+set(CMAKE_BUILD_TYPE Debug)
+
+# Add your executable or library
+add_executable(my_executable main.cpp)
+```
+
+### Step 2: Generate the Build System
+
+Run CMake to generate the build system. You can do this from the command line:
+
+```bash
+mkdir build
+cd build
+cmake ..
+```
+
+### Step 3: Build the Project
+
+After generating the build system, compile your project in the build directory:
+
+```bash
+cmake --build . --config Debug
+```
+
+### Step 4: Use a Debugger
+
+You can use a debugger like GDB (GNU Debugger) or LLDB (LLVM Debugger) to debug your application. Here’s how to do it with GDB:
+
+1. **Run GDB**:
+   ```bash
+   gdb ./my_executable
+   ```
+
+2. **Set Breakpoints**:
+   Inside GDB, you can set breakpoints at specific lines or functions:
+   ```gdb
+   (gdb) break main
+   ```
+
+3. **Run the Program**:
+   Start your program within GDB:
+   ```gdb
+   (gdb)   
+   ```
+
+4. **Inspect Variables**:
+   You can inspect variables and step through the code:
+   ```gdb
+   (gdb) print variable_name
+   (gdb) step
+   (gdb) next
+   ```
+
+5. **Exit GDB**:
+   To exit GDB, you can type:
+   ```gdb
+   (gdb) quit
+   ```
+
+### Step 5: Debugging in an IDE
+
+If you're using an Integrated Development Environment (IDE) like Visual Studio, CLion, or Eclipse, 
+they typically provide built-in support for debugging. You can set the build type to 
+Debug in the IDE settings and use the IDE's debugging tools to set breakpoints, inspect variables, and control execution flow.
+
+### Additional Tips
+
+- **Verbose Output**: You can enable verbose output during the build process to see more details:
+  ```bash
+  cmake --build . -- VERBOSE=1
+  ```
+
+- **Custom Compiler Flags**: If you need specific compiler flags for debugging, you can add them in your `CMakeLists.txt`:
+  ```cmake
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+  ```
+
+By following these steps, you should be able to effectively debug your CMake-based project.

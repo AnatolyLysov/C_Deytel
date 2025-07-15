@@ -56,3 +56,57 @@ The following are some of the valid targets for this Makefile:
 ... page537.s
 aikidance@aikidance:~/C_Deytel/Part12_data_strutures/page537$ 
 -----------------------------
+# Specify the minimum version of CMake required
+cmake_minimum_required(VERSION 3.28.3)
+
+# Set the project name
+project(page537Project C)
+
+# Set the build type to Debug
+set(CMAKE_BUILD_TYPE Debug)
+
+# Add the executable target
+add_executable(page537 page537.c)
+
+
+aikidance@aikidance:~/C_Deytel/Part12_data_strutures/page537$ cmake --build . --config Debug -- VERBOSE=1
+
+gdb ./page537
+break main
+run
+--------------------------------
+aikidance@aikidance:~/C_Deytel/Part12_data_strutures/page537$ gdb ./page537
+GNU gdb (Ubuntu 15.0.50.20240403-0ubuntu1) 15.0.50.20240403-git
+Copyright (C) 2024 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<https://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from ./page537...
+(gdb)  break main
+Breakpoint 1 at 0x1195: file /home/aikidance/C_Deytel/Part12_data_strutures/page537/page537.c, line 13.
+(gdb) run
+Starting program: /home/aikidance/C_Deytel/Part12_data_strutures/page537/page537 
+
+This GDB supports auto-downloading debuginfo from the following URLs:
+  <https://debuginfod.ubuntu.com>
+Enable debuginfod for this session? (y or [n]) y
+Debuginfod has been enabled.
+To make this setting permanent, add 'set debuginfod enabled on' to .gdbinit.
+Downloading separate debug info for system-supplied DSO at 0x7ffff7fc3000
+[Thread debugging using libthread_db enabled]                                                                                                                                                  
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+
+Breakpoint 1, main () at /home/aikidance/C_Deytel/Part12_data_strutures/page537/page537.c:13
+13          void *pChain = calloc(NODECNT,sizeof(struct node));
+(gdb) 
+-----------------------------

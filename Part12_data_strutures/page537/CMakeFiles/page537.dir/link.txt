@@ -1,1 +1,1 @@
-/usr/bin/cc CMakeFiles/page537.dir/page537.c.o -o page537 
+/usr/bin/cc -g CMakeFiles/page537.dir/page537.c.o -o page537 
