@@ -1,29 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NODECNT 100
+#define NDCNT 10
 
 int main(){
-    struct node_lbl{
-        /* data */
-        int i;
-        struct node_lbl *pNode;
-
+    struct node{
+         struct node *p;
     };
-    void *pChain = calloc(NODECNT,sizeof(struct node_lbl));
-    
-    if (pChain == NULL)
-    {
-       printf("memory allocation error");
-       exit(1);
-    }
    
-    struct node_lbl *pNode = pChain;
-    
-    for(int i = 0; i <= 99; i++){
-        pNode->i = i;
-        pNode ++;
-    } 
-
-    return 0;
+   struct node *pNode;
+   pNode = calloc(NDCNT,sizeof(struct node));
+   
+   for(int i=1; i <= NDCNT; i++)
+      pNode->p = pNode++;
+      printf("%p\n",pNode);
+   return 0;
 }
+
+/* cmake --build . --config Debug -- VERBOSE=1
+gdb ./page537
+break 15
+run
+ */

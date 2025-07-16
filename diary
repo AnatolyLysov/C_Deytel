@@ -110,3 +110,24 @@ Breakpoint 1, main () at /home/aikidance/C_Deytel/Part12_data_strutures/page537/
 13          void *pChain = calloc(NODECNT,sizeof(struct node));
 (gdb) 
 -----------------------------
+Все мы проходили через этот неловкий момент когда во время отладки мы проскочили интересующую нас функцию, 
+и теперь снова надо перезапускать отладчик, 
+проходить тот же путь на CFG и т.п. Чтобы избежать этого, в gdb есть такая фишка как Reverse Debug, 
+позволяющая сохранить состояние программы и обратно отладить до него.
+
+Для этого, после запуска отладчика укажем gdb, что хотим начать использовать 
+reverse debug и стоит сохранять состояния программы
+
+record
+
+После этого станут доступны следующие команды
+
+reverse-step
+reverse-next
+------------------------------------------
+gdb ./page53
+break main
+run
+record
+reverse-continue, reverse-finish, reverse-next, reverse-nexti, reverse-search, reverse-step
+-----------------------------
