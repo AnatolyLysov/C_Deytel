@@ -1,24 +1,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NDCNT 10
+#define NDCNT 3
 
 int main(){
-    struct node{
-         struct node *p;
-    };
-   
-   struct node *pNode;
-   pNode = calloc(NDCNT,sizeof(struct node));
-   
-   for(int i=1; i <= NDCNT; i++)
-      pNode->p = pNode++;
-      printf("%p\n",pNode);
+   struct node{
+   char ch;   
+   struct node *p;
+   };
+
+   struct node *pN = NULL,*tmp = NULL;
+   pN = calloc(NDCNT,sizeof(struct node));
+   pN->ch = 'a';
+   tmp = pN;
+   pN++;
+   tmp->p = pN;
+
+   pN->ch = 'b';
+   tmp = pN;
+   pN++;
+   tmp->p = pN;
+
+   pN->ch = 'c';
+   pN->p = NULL;
+  
    return 0;
 }
 
 /* cmake --build . --config Debug -- VERBOSE=1
-gdb ./page537
 break 15
 run
  */

@@ -1,0 +1,47 @@
+GEF - GDB Enhanced Features
+Docs Coverage MIT Python 3 Discord
+
+GEF (pronounced ʤɛf - "Jeff") is a kick-ass set of commands for X86, ARM, MIPS, PowerPC and SPARC to make GDB cool again for exploit dev. It is aimed to be used mostly by exploit developers and reverse-engineers, to provide additional features to GDB using the Python API to assist during the process of dynamic analysis and exploit development.
+
+It requires Python 3, but gef-legacy can be used if Python 2 support is needed.
+
+gef-context
+
+GDB Made Easy
+One single GDB script
+Entirely architecture agnostic, NO dependencies: GEF is battery-included and is installable instantly
+Fast limiting the number of dependencies and optimizing code to make the commands as fast as possible
+Provides a great variety of commands to drastically change your debugging experience in GDB.
+Easily extensible to create other commands by providing more comprehensible layout to GDB Python API.
+Full Python3 support (Python2 support was dropped in 2020.03) - check out gef-legacy for a Python2 compatible version, and the compatibility matrix for a complete rundown of version support.
+Built around an architecture abstraction layer, so all commands work in any GDB-supported architecture such as x86-32/64, ARMv5/6/7, AARCH64, SPARC, MIPS, PowerPC, etc.
+Suited for real-life debugging, exploit development, just as much as for CTFs
+And a lot more commands contributed by the community available on GEF-Extras !!
+Check out the showroom page for more | or try it online yourself! (user:gef/password:gef-demo)
+
+Quick start
+Automated installation
+GEF has no dependencies, is fully battery-included and works out of the box. You can get started with GEF in a matter of seconds, by simply running:
+
+bash -c "$(curl -fsSL https://gef.blah.cat/sh)"
+For more details and other ways to install GEF please see installation page.
+
+Run
+Then just start playing (for local files):
+
+$ gdb -q /path/to/my/bin
+gef➤  gef help
+Or (for remote debugging):
+
+remote:~ $ gdbserver 0.0.0.0:1234 /path/to/file
+Running as PID: 666
+And:
+
+local:~ $ gdb -q
+gef➤  gef-remote -t your.ip.address:1234 -p 666
+Bugs & Feedbacks
+To discuss gef, gdb, exploitation or other topics, feel free to join our Discord channel.
+
+For bugs or feature requests, just go here and provide a thorough description if you want help.
+
+Side Note: GEF fully relies on the GDB API and other Linux-specific sources of information (such as /proc/<pid>). As a consequence, some of the features might not work on custom or hardened systems such as GrSec.

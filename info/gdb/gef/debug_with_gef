@@ -1,0 +1,66 @@
+To debug with GEF (the GNU Emacs Framework), you typically follow these steps:
+
+1. **Install GEF**: Make sure you have GEF installed. You can do this by cloning the GEF repository and adding it to your `.gdbinit` file. You can find GEF on GitHub.
+
+   ```bash
+   git clone https://github.com/hugsy/gef.git
+   echo "source /path/to/gef.py" >> ~/.gdbinit
+   ```
+
+2. **Start GDB with GEF**: Launch GDB as you normally would, and GEF will load automatically.
+
+   ```bash
+   gdb ./your_program
+   ```
+
+3. **Set Breakpoints**: Use the GEF commands to set breakpoints in your code. You can set breakpoints at specific functions or lines.
+
+   ```gdb
+   b main
+   ```
+
+4. **Run Your Program**: Start running your program within GDB.
+
+   ```gdb
+   run
+   ```
+
+5. **Inspect Variables**: Use GEF’s enhanced commands to inspect variables and memory. For example, you can use:
+
+   ```gdb
+   p variable_name
+   ```
+
+   or for more detailed memory inspection:
+
+   ```gdb
+   x/20xw $esp  # Examine 20 words from the stack
+   ```
+
+6. **Step Through Code**: Use the step commands to go through your code line by line or to step into functions.
+
+   ```gdb
+   s  # Step into function
+   n  # Step over to the next line
+   ```
+
+7. **Use GEF Features**: GEF provides additional features like stack tracing, memory visualization, and more. You can utilize commands like `context`, `tbreak`, `info`, etc.
+
+8. **Analyze Crashes**: If your program crashes, you can analyze the backtrace to understand what went wrong.
+
+   ```gdb
+   bt  # Backtrace
+   ```
+
+9. **Exit GDB**: When you're done debugging, you can exit GDB with:
+
+   ```gdb
+   quit
+   ```
+
+### Additional Tips:
+- Familiarize yourself with GEF’s documentation to make the most of its features.
+- Use the command `help` in GDB to see a list of available commands.
+- Experiment with various GEF commands to become more efficient in your debugging process.
+
+By following these steps, you should be able to effectively debug your programs using GEF in GDB.

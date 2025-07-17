@@ -1,0 +1,472 @@
+The GEF (GDB Enhanced Features) is an extension for the GNU Debugger (GDB) that provides additional features and commands to enhance the debugging experience, 
+especially for binary exploitation and reverse engineering tasks. Below are some of the commonly used GEF base commands:
+
+### 1. **`gef` Command**
+- **Description**: Displays the GEF version and some basic information about the current GDB session.
+- **Usage**: Simply type `gef` in the GDB prompt.
+
+### 2. **`context` Command**
+- **Description**: Displays the current context, including registers, disassembly, and stack information.
+- **Usage**: Use `context` or `c` to view the current context. You can also specify options like `context registers`, `context disassembly`, etc.
+
+### 3. **`x` Command**
+- **Description**: This command is used to examine memory. GEF extends this command to allow for more options.
+- **Usage**: `x/[n][f] address`, where `n` is the number of units to display and `f` is the format (e.g., `x/10x` to display 10 hexadecimal values).
+
+### 4. **`disas` Command**
+- **Description**: Displays disassembly of code. GEF enhances the `disassemble` command.
+- **Usage**: `disas` or `disas <function_name>` to disassemble a specific function.
+
+### 5. **`telescope` Command**
+- **Description**: Displays the contents of memory pointed to by a register or address in a more visual way.
+- **Usage**: `telescope <address>` or `telescope $esp` to view the stack.
+
+### 6. **`pattern` Command**
+- **Description**: Used for generating and searching for unique patterns, useful in buffer overflow exploits.
+- **Usage**: `pattern create <length>` to create a unique pattern, and `pattern search <value>` to search for a specific value.
+
+### 7. **`search` Command**
+- **Description**: Searches for a specific byte sequence in memory.
+- **Usage**: `search <pattern>` to find a specific byte pattern in the memory.
+
+### 8. **`info` Command**
+- **Description**: Provides detailed information about various aspects of the program being debugged, such as functions, variables, and sections.
+- **Usage**: `info functions`, `info variables`, `info proc`, etc.
+
+### 9. **`hook` Command**
+- **Description**: Allows you to set hooks for specific events in GDB (like breakpoints).
+- **Usage**: `hook <event> <command>` to specify commands to run when a specific event occurs.
+
+### 10. **`gef-` Commands**
+- GEF provides many other commands prefixed with `gef-`, such as `gef-heap`, `gef-stack`, and `gef-peda`, which provide additional features 
+like heap analysis and stack inspection.
+
+### 11. **`break` Command**
+- **Description**: Sets breakpoints in the code.
+- **Usage**: `break <location>` to set a breakpoint at a specific function or line.
+
+### 12. **`continue` Command**
+- **Description**: Resumes program execution until the next breakpoint.
+- **Usage**: `continue` or simply `c`.
+
+### 13. **`step` and `next` Commands**
+- **Description**: Used for stepping through the code line by line.
+- **Usage**: `step` (enters functions) and `next` (steps over functions).
+
+### Installation and Usage
+To use GEF, you typically need to clone its repository and source it in your `.gdbinit` file. Here’s how to get started:
+
+1. **Clone GEF**:
+   ```bash
+   git clone https://github.com/hugsy/gef.git
+   ```
+
+2. **Add to `.gdbinit`**:
+   Add the following line to your `~/.gdbinit`:
+   ```bash
+   source /path/to/gef.py
+   ```
+
+3. **Start GDB**:
+   Launch GDB as you normally would, and GEF will be available.
+
+### Conclusion
+GEF provides a powerful set of commands and enhancements to GDB, making it easier to analyze and debug programs, 
+especially in the context of security research and binary exploitation. Familiarizing yourself with these commands 
+can significantly improve your debugging efficiency.
+-----------------------
+
+gef description
+
+gef➤  gef description
+───────────────────────────────────────────────────────────────────────────────── GEF - GDB Enhanced Features ─────────────────────────────────────────────────────────────────────────────────
+$
+SmartEval: Smart eval (vague approach to mimic WinDBG `?`).
+Syntax: $ EXPR
+$ ADDRESS1 ADDRESS2
+Examples: 
+
+$ $pc+1
+$ 0x00007ffff7a10000 0x00007ffff7bce000
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+aliases
+Base command to add, remove, or list aliases.
+Syntax: aliases (add|rm|ls)
+Examples: 
+
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+arch
+Manage the current loaded architecture.
+Syntax: arch (list|get|set) ...
+Examples: 
+        arch set X86
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+aslr
+View/modify the ASLR setting of GDB. By default, GDB will disable ASLR when it starts the process. (i.e. not
+attached). This command allows to change that setting.
+Syntax: aslr [(on|off)]
+Examples: 
+
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+canary
+Shows the canary value of the current process.
+Syntax: canary
+Examples: 
+
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+checksec
+Checksec the security properties of the current executable or passed as argument. The
+command checks for the following protections:
+- PIE
+- NX
+- RelRO
+- Glibc Stack Canaries
+- Fortify Source
+Syntax: checksec [FILENAME]
+Examples: 
+        checksec /bin/ls
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+context
+Displays a comprehensive and modular summary of runtime context. Unless setting `enable` is
+set to False, this command will be spawned automatically every time GDB hits a breakpoint, a
+watchpoint, or any kind of interrupt. By default, it will show panes that contain the register
+states, the stack, and the disassembly code around $pc.
+Syntax: context [legend|regs|stack|code|args|memory|source|trace|threads|extra]
+Examples: 
+
+Aliases: ctx
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+dereference
+Dereference recursively from an address and display information. This acts like WinDBG `dps`
+command.
+Syntax: dereference [-h] [--length LENGTH] [--reference REFERENCE] [address]
+Examples: 
+        dereference --length 20 --reference $sp+0x10 $sp
+Aliases: telescope
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+edit-flags
+Edit flags in a human friendly way.
+Syntax: edit-flags [(+|-|~)FLAGNAME ...]
+Examples: 
+
+edit-flags
+edit-flags +zero # sets ZERO flag
+Aliases: flags
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+elf-info
+Display a limited subset of ELF header information. If no argument is provided, the command will
+show information about the current ELF being debugged.
+Syntax: elf-info [FILE]
+Examples: 
+        elf-info /bin/ls
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+entry-break
+Tries to find best entry point and sets a temporary breakpoint on it. The command will test for
+well-known symbols for entry points, such as `main`, `_main`, `__libc_start_main`, etc. defined by
+the setting `entrypoint_symbols`.
+Syntax: entry-break
+Examples: 
+
+Aliases: start
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+format-string-helper
+Exploitable format-string helper: this command will set up specific breakpoints
+at well-known dangerous functions (printf, snprintf, etc.), and check if the pointer
+holding the format string is writable, and therefore susceptible to format string
+attacks if an attacker can control its content.
+Syntax: format-string-helper
+Examples: 
+
+Aliases: fmtstr-helper
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+functions
+List the convenience functions provided by GEF.
+Syntax: functions
+Examples: 
+
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+gef-remote
+GDB `target remote` command on steroids. This command will use the remote procfs to create
+a local copy of the execution environment, including the target binary and its libraries
+in the local temporary directory (the value by default is in `gef.config.tempdir`). Additionally, it
+will fetch all the /proc/PID/maps and loads all its information. If procfs is not available remotely, the command
+will likely fail. You can however still use the limited command provided by GDB `target remote`.
+Syntax: gef-remote [OPTIONS] TARGET
+Examples: 
+        gef-remote localhost 1234
+        gef-remote --pid 6789 localhost 1234
+        gef-remote --qemu-user --qemu-binary /bin/debugme localhost 4444 
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+got
+Display current status of the got inside the process.
+Syntax: got [FUNCTION_NAME ...] 
+Examples: 
+        got read printf exit
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+heap
+Base command to get information about the Glibc heap structure.
+Syntax: heap (chunk|chunks|bins|arenas|set-arena)
+Examples: 
+
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+heap-analysis-helper
+Heap vulnerability analysis helper: this command aims to track dynamic heap allocation
+done through malloc()/free() to provide some insights on possible heap vulnerabilities. The
+following vulnerabilities are checked:
+- NULL free
+- Use-after-Free
+- Double Free
+- Heap overlap
+Syntax: heap-analysis-helper
+Examples: 
+
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+hexdump
+Display SIZE lines of hexdump from the memory location pointed by LOCATION.
+Syntax: hexdump (qword|dword|word|byte) [LOCATION] [--size SIZE] [--reverse]
+Examples: 
+        hexdump byte $rsp --size 16 --reverse
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+highlight
+Highlight user-defined text matches in GEF output universally.
+Syntax: highlight (add|remove|list|clear)
+Examples: 
+
+Aliases: hl
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+hijack-fd
+ChangeFdCommand: redirect file descriptor during runtime.
+Syntax: hijack-fd FD_NUM NEW_OUTPUT
+Examples: 
+        hijack-fd 2 /tmp/stderr_output.txt
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+memory
+Add or remove address ranges to the memory view.
+Syntax: memory (watch|unwatch|reset|list)
+Examples: 
+
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+name-break
+Sets a breakpoint and assigns a name to it, which will be shown, when it's hit.
+Syntax: name-break name [address]
+Examples: 
+
+Aliases: nb
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+nop
+Patch the instruction(s) pointed by parameters with NOP. Note: this command is architecture
+aware.
+Syntax: nop [LOCATION] [--i ITEMS] [--f] [--n] [--b]
+        LOCATION        address/symbol to patch (by default this command replaces whole instructions)   --i ITEMS       number of items to insert (default 1)   --f     Force patch even when the selected settings could overwrite partial instructions       --n     Instead of replacing whole instructions, insert ITEMS nop instructions, no matter how many instructions it overwrites --b      Instead of replacing whole instructions, fill ITEMS bytes with nops
+Examples: 
+        nop
+        nop $pc+3
+        nop --i 2 $pc+3
+        nop --b
+        nop --b $pc+3
+        nop --f --b --i 2 $pc+3nop --n --i 2 $pc+3
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+patch
+Write specified values to the specified address.
+Syntax: patch (qword|dword|word|byte) LOCATION VALUES
+patch string LOCATION "double-escaped string"
+Examples: 
+
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+pattern
+Generate or Search a De Bruijn Sequence of unique substrings of length N
+and a total length of LENGTH. The default value of N is set to match the
+currently loaded architecture.
+Syntax: pattern (create|search) ARGS
+Examples: 
+
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+pcustom
+Dump user defined structure.
+This command attempts to reproduce WinDBG awesome `dt` command for GDB and allows
+to apply structures (from symbols or custom) directly to an address.
+Custom structures can be defined in pure Python using ctypes, and should be stored
+in a specific directory, whose path must be stored in the `pcustom.struct_path`
+configuration setting.
+Syntax: pcustom [list|edit <StructureName>|show <StructureName>]|<StructureName> 0xADDRESS]
+Examples: 
+
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+pie
+PIE breakpoint support.
+Syntax: pie (breakpoint|info|delete|run|attach|remote)
+Examples: 
+
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+print-format
+Print bytes format in commonly used formats, such as literals in high level languages.
+Syntax: print-format [--lang LANG] [--bitlen SIZE] [(--length,-l) LENGTH] [--clip] LOCATION     --lang LANG specifies the output format for programming language (available: ('py', 'c', 'js', 'asm', 'hex', 'bytearray'), default 'py').      --bitlen SIZE specifies size of bit (possible values: (8, 16, 32, 64), default is 8).   --length LENGTH specifies length of array (default is 256).    --clip The output data will be copied to clipboard      LOCATION specifies where the address of bytes is stored.
+Examples: 
+        print-format --lang py -l 16 $rsp
+Aliases: pf
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+process-search
+List and filter process. If a PATTERN is given as argument, results shown will be grepped
+by this pattern.
+Syntax: process-search [-h] [--attach] [--smart-scan] [REGEX_PATTERN]
+Examples: 
+        process-search gdb.*
+Aliases: ps
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+process-status
+Extends the info given by GDB `info proc`, by giving an exhaustive description of the
+process status (file descriptors, ancestor, descendants, etc.).
+Syntax: process-status
+Examples: 
+
+Aliases: status
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+registers
+Display full details on one, many or all registers value from current architecture.
+Syntax: registers [[Register1][Register2] ... [RegisterN]]
+Examples: 
+
+registers
+registers $eax $eip $esp
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+reset-cache
+Reset cache of all stored data. This command is here for debugging and test purposes, GEF
+handles properly the cache reset under "normal" scenario.
+Syntax: reset-cache
+Examples: 
+
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+scan
+Search for addresses that are located in a memory mapping (haystack) that belonging
+to another (needle).
+Syntax: scan HAYSTACK NEEDLE
+Examples: 
+
+scan stack libc
+Aliases: lookup
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+search-pattern
+SearchPatternCommand: search a pattern in memory. If given an hex value (starting with 0x)
+the command will also try to look for upwards cross-references to this address.
+Syntax: search-pattern PATTERN [little|big] [section]
+Examples: 
+        search-pattern AAAAAAAA
+        search-pattern 0x555555554000 little stack
+        search-pattern AAAA 0x600000-0x601000
+        search-pattern --regex 0x401000 0x401500 ([\\x20-\\x7E]{2,})(?=\\x00)   <-- It matches null-end-printable(from x20-x7e) C strings (min size 2 bytes)
+Aliases: grep, xref
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+shellcode
+ShellcodeCommand uses @JonathanSalwan simple-yet-awesome shellcode API to
+download shellcodes.
+Syntax: shellcode (search|get)
+Examples: 
+
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+skipi
+Skip N instruction(s) execution
+Syntax: skipi [LOCATION] [--n NUM_INSTRUCTIONS]
+        LOCATION        address/symbol from where to skip       --n NUM_INSTRUCTIONS    Skip the specified number of instructions instead of the default 1.
+Examples: 
+        skipi
+        skipi --n 3
+        skipi 0x69696969
+        skipi 0x69696969 --n 6
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+stepover
+Breaks on the instruction immediately following this one. Ex: Step over call instruction
+Syntax: stepover
+        Breaks on the instruction immediately following this one. Ex: Step over call instruction.
+Examples: 
+        stepover
+Aliases: so
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+stub
+Stub out the specified function. This function is useful when needing to skip one
+function to be called and disrupt your runtime flow (ex. fork).
+Syntax: stub [--retval RETVAL] [address]        address address/symbol to stub out      --retval RETVAL Set the return value
+Examples: 
+        stub --retval 0 fork
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+theme
+Customize GEF appearance.
+Syntax: theme [KEY [VALUE]]
+Examples: 
+        theme address_stack green
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+trace-run
+Create a runtime trace of all instructions executed from $pc to LOCATION specified. The
+trace is stored in a text file that can be next imported in IDA Pro to visualize the runtime
+path.
+Syntax: trace-run LOCATION [MAX_CALL_DEPTH]
+Examples: 
+        trace-run 0x555555554610
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+version
+Display GEF version info.
+Syntax: version
+Examples: 
+        version
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+vmmap
+Display a comprehensive layout of the virtual memory mapping. If a filter argument, GEF will
+filter out the mapping whose pathname do not match that filter.
+Syntax: vmmap [FILTER]
+Examples: 
+        vmmap libc
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+xfiles
+Shows all libraries (and sections) loaded by binary. This command extends the GDB command
+`info files`, by retrieving more information from extra sources, and providing a better
+display. If an argument FILE is given, the output will grep information related to only that file.
+If an argument name is also given, the output will grep to the name within FILE.
+Syntax: xfiles [FILE [NAME]]
+Examples: 
+
+xfiles libc
+xfiles libc IO_vtables
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+xinfo
+Retrieve and display runtime information for the location(s) given as parameter.
+Syntax: xinfo LOCATION
+Examples: 
+        xinfo $pc
+Aliases: 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+xor-memory
+XOR a block of memory. The command allows to simply display the result, or patch it
+runtime at runtime.
+Syntax: xor-memory (display|patch) ADDRESS SIZE KEY
+Examples: 
+
+Aliases: 
