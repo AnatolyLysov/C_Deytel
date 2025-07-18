@@ -125,7 +125,7 @@ record
 reverse-step
 reverse-next
 ------------------------------------------
-gdb ./page53
+gdb ./page537
 break main
 run
 record
@@ -152,3 +152,34 @@ source ~/.gef-2025.01.py
 -------------------------
 gef description
 context [legend|regs|stack|code|args|memory|source|trace|threads|extra]
+------
+start gef
+gef➤  run ./page537
+b main
+run
+
+gef➤  p *pN
+------
+gef➤  process-status
+[+] Process Information
+        PID  →  13276
+        Executable  →  /home/aikidance/C_Deytel/Part12_data_strutures/page537/page537
+        Command line  →  '/home/aikidance/C_Deytel/Part12_data_strutures/page537/page537'
+[+] Parent Process Information
+        Parent PID  →  12499
+        Command line  →  'gdb ./page537'
+[+] Children Process Information
+        No child process
+[+] File Descriptors:
+        /proc/13276/fd/0  →  /dev/pts/10
+        /proc/13276/fd/1  →  /dev/pts/10
+        /proc/13276/fd/2  →  /dev/pts/10
+        /proc/13276/fd/22  →  /home/aikidance/.vscode-server/data/logs/20250718T164952/ptyhost.log
+        /proc/13276/fd/23  →  /dev/ptmx
+        /proc/13276/fd/24  →  /home/aikidance/.vscode-server/data/logs/20250718T164952/remoteTelemetry.log
+        /proc/13276/fd/25  →  /dev/ptmx
+        /proc/13276/fd/28  →  /home/aikidance/.vscode-server/data/logs/20250718T164952/remoteagent.log
+[+] Network Connections
+        No open connections
+-------------
+

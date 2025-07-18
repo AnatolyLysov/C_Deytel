@@ -11,8 +11,11 @@ bash -c "$(wget https://gef.blah.cat/sh -O -)"
 GEF for linux ready, type `gef' to start, `gef config' to configure
 93 commands loaded and 5 functions added for GDB 15.0.50.20240403-git in 0.00ms using Python engine 3.12
 ------------------------------
-GEF (pronounced ʤɛf - "Jeff") is a set of commands for x86/64, ARM, MIPS, PowerPC and SPARC to assist exploit developers and reverse-engineers when using old school GDB. 
-It provides additional features to GDB using the Python API to assist during the process of dynamic analysis and exploit development. Application developers will also benefit from it, as GEF lifts a great part of regular GDB obscurity, avoiding repeating traditional commands, or bringing out the relevant information from the debugging runtime.
+GEF (pronounced ʤɛf - "Jeff") is a set of commands for x86/64, ARM, MIPS, PowerPC and SPARC to assist exploit developers 
+and reverse-engineers when using old school GDB. 
+It provides additional features to GDB using the Python API to assist during the process of dynamic analysis and exploit development. 
+Application developers will also benefit from it, as GEF lifts a great part of regular GDB obscurity, avoiding repeating 
+traditional commands, or bringing out the relevant information from the debugging runtime.
 
 Instant Setup
 Simply make sure you have GDB 10.0 or higher compiled with Python3.10+ bindings, then:
@@ -43,10 +46,14 @@ Fast limiting the number of dependencies and optimizing code to make the command
 Provides a great variety of commands to drastically change your experience in GDB.
 Easily extensible to create other commands by providing d more comprehensible layout to GDB Python API.
 Full Python3 support (Python2 support was dropped - see gef-legacy).
-Built around an architecture abstraction layer, so all commands work in any GDB-supported architecture such as x86-32/64, ARMv5/6/7, AARCH64, SPARC, MIPS, PowerPC, etc.
+Built around an architecture abstraction layer, so all commands work in any GDB-supported architecture such 
+as x86-32/64, ARMv5/6/7, AARCH64, SPARC, MIPS, PowerPC, etc.
 Suited for real-life apps debugging, exploit development, just as much as CTF
 And a lot more commands contributed by the community available on GEF-Extras !!
 Check out the Screenshot page for more or try it online (user:gef/password:gef-demo)
 
 Documentation
-Unlike other GDB plugins, GEF has an extensive and up-to-date documentation. Users are recommended to refer to it as it may help them in their attempts to use GEF. In particular, new users should navigate through it (see the FAQ for common installation problems), and the problem persists, try to reach out for help on the Discord channel or submit an issue.
+Unlike other GDB plugins, GEF has an extensive and up-to-date documentation. Users are recommended to refer to it as 
+it may help them in their attempts to use GEF. 
+In particular, new users should navigate through it (see the FAQ for common installation problems), and the problem persists, 
+try to reach out for help on the Discord channel or submit an issue.
