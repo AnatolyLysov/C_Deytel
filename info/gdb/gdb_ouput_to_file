@@ -1,0 +1,314 @@
+https://stackoverflow.com/questions/5941158/gdb-print-to-file-instead-of-stdout
+
+GDB print to file instead of stdout
+Asked 14 years, 2 months ago
+Modified 2 months ago
+Viewed 166k times
+
+Report this ad
+152
+
+I am running GDB and want to examine one of those unfortunate god objects. It takes many pages (and I have a 24" monitor turned sideways!) to see the whole thing.
+
+For ease of use, I'd like GDB to print the object to a file instead of the screen so that I can open it in vi and move around with ease.
+
+With all of GDB's versatility, there must be a way to do this, right?
+
+printinggdbio-redirection
+Share
+Edit
+Follow
+edited Aug 20, 2024 at 16:45
+Marcus Müller's user avatar
+Marcus Müller
+36.7k44 gold badges5858 silver badges104104 bronze badges
+asked May 9, 2011 at 18:53
+pythonic metaphor's user avatar
+pythonic metaphor
+10.6k2020 gold badges7777 silver badges112112 bronze badges
+Add a comment
+10 Answers
+Sorted by:
+
+Highest score (default)
+223
+
+You need to enable logging:
+
+(gdb) set logging enabled on
+Now GDB will log to ./gdb.txt. You can tell it which file to use:
+
+(gdb) set logging file my_god_object.log
+And you can examine the current logging configuration:
+
+(gdb) show logging
+Share
+Edit
+Follow
+edited Apr 28 at 11:35
+RokeJulianLockhart's user avatar
+RokeJulianLockhart
+34222 gold badges1111 silver badges4545 bronze badges
+answered May 9, 2011 at 19:04
+Tadeusz A. Kadłubowski's user avatar
+Tadeusz A. Kadłubowski
+8,42311 gold badge3535 silver badges3737 bronze badges
+30
+And if you want the output to go only to the log file, use set logging redirect on. – 
+Ben C
+ CommentedSep 5, 2016 at 8:30
+18
+Shouldn't we set set logging file my_god_object.log before set logging on? – 
+Herpes Free Engineer
+ CommentedJan 2, 2019 at 13:33 
+This plus tail -f and awk was really helpful today. Thanks! – 
+remcycles
+ CommentedApr 5, 2019 at 15:49
+6
+Warning: 'set logging on', an alias for the command 'set logging enabled', is deprecated. Use 'set logging enabled on'. v14.2 – 
+Douglas Silva
+ CommentedMay 31, 2024 at 15:20 
+Add a comment
+
+Report this ad
+25
+
+I've found that you can redirect the output from gdb to a file via the run command:
+
+(gdb) run > outfile
+Share
+Edit
+Follow
+answered Oct 31, 2013 at 19:31
+Lucas Gabriel Sánchez's user avatar
+Lucas Gabriel Sánchez
+41.9k2020 gold badges5959 silver badges8484 bronze badges
+20
+That would be the output from the program being debugged, not the output from gdb itself. OP wanted to log gdb's own output. – 
+the paul
+ CommentedMay 6, 2015 at 15:08
+see also: stackoverflow.com/questions/2388561/… – 
+Ciro Santilli OurBigBook.com
+ CommentedFeb 17, 2016 at 15:25
+3
+@thepaul but this is in fact very useful as I'm debugging a QT program that just trashes gdb's stdin with it's QDebug garbage – 
+rostamn739
+ CommentedJun 16, 2016 at 14:47
+1
+@rostamn739 oops, didn't help at all – 
+rostamn739
+ CommentedJun 16, 2016 at 14:50
+run &> outfile is sometimes needed to capture the complete output. Noticed while using GoogleTest that all lines weren't getting added (unless the stderr was also redirected with &>) – 
+Ambareesh
+ CommentedDec 9, 2021 at 3:24 
+Add a comment
+22
+
+Extending on @qubodup's answer
+
+gdb core.3599 -ex bt -ex quit |& tee backtrace.log
+the -ex switch runs a gdb command. So the above loads the core file, runs bt command, then quit command. Output is written to backtrace.log and also on the screen.
+
+Another useful gdb invocation (giving stacktrace with local variables from all threads) is
+
+gdb core.3599 -ex 'thread apply all bt full' -ex quit
+Share
+Edit
+Follow
+answered Apr 24, 2016 at 9:54
+user7610's user avatar
+user7610
+29.5k1717 gold badges147147 silver badges168168 bronze badges
+On some systems, you need to type gdb -c core.3599 ... – 
+user7610
+ CommentedJun 10, 2016 at 8:31
+1
+> gdb core.3599 -ex 'thread apply all bt full' -ex quit Add --batch to run without a prompt -eg sudo gdb --batch core.3599 -ex 'thread apply all bt full' -ex quit > output.log – 
+David Skelly
+ CommentedDec 8, 2019 at 20:27 
+Add a comment
+
+Report this ad
+18
+
+From https://sourceware.org/gdb/onlinedocs/gdb/Logging-Output.html:
+
+You may want to save the output of gdb commands to a file. There are several commands to control gdb's logging.
+
+set logging on
+Enable logging.
+
+set logging off
+Disable logging.
+
+set logging file file
+Change the name of the current logfile. The default logfile is gdb.txt.
+
+set logging overwrite [on|off]
+By default, gdb will append to the logfile. Set overwrite if you want set logging on to overwrite the logfile instead.
+
+set logging redirect [on|off]
+By default, gdb output will go to both the terminal and the logfile. Set redirect if you want output to go only to the log file.
+
+show logging
+Show the current values of the logging settings.
+
+Share
+Edit
+Follow
+edited Apr 13, 2019 at 9:14
+mgarey's user avatar
+mgarey
+76211 gold badge88 silver badges2121 bronze badges
+answered Sep 23, 2016 at 11:12
+husin alhaj ahmade's user avatar
+husin alhaj ahmade
+48144 silver badges1717 bronze badges
+2
+Copy paste of sourceware.org/gdb/onlinedocs/gdb/Logging-Output.html without citation. – 
+Herpes Free Engineer
+ CommentedJan 2, 2019 at 13:34 
+Add a comment
+9
+
+A simple method to log gdb to a file while still seeing the output (which eases writing commands) is to use tee:
+
+gdb command |& tee gdb.log
+Share
+Edit
+Follow
+answered Dec 11, 2015 at 4:09
+qubodup's user avatar
+qubodup
+9,76355 gold badges4343 silver badges5151 bronze badges
+Note that one cannot use tui enable or layout commands in this mode. gdb says Cannot enable the TUI when output is not a terminal – 
+codeman48
+ CommentedFeb 24, 2022 at 8:39
+Add a comment
+5
+
+Redirection of a gdb's command output to a file can be made by using Python (my version of gdb is 8.1.1):
+
+(gdb) python
+>with open("/path/to/file/bt.txt", "w") as outfile:
+> outfile.write(gdb.execute("bt", to_string=True))
+>end
+For convenience this functionality can be added as a command to gdb by adding into .gdbinit:
+
+python
+import argparse
+
+class RedirOutput(gdb.Command):
+    def __init__(self):
+        super().__init__("rdr", gdb.COMMAND_USER, gdb.COMPLETE_COMMAND)
+
+    def invoke(self, argstr, from_tty):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('command', nargs='+')
+        parser.add_argument('-o', "--outfile", required=True, help="output file")
+
+        nm = parser.parse_args(argstr.split())
+
+        with open(nm.outfile, "w") as output_file:
+            try:
+                output_file.write(gdb.execute(' '.join(nm.command), to_string=True))
+            except Exception as e:
+                print(str(e))
+
+RedirOutput()
+end
+Variants of usage:
+
+### Inside gdb
+(gdb) rdr info -o /absolute/path/info.txt
+(gdb) rdr info registers eax -o ./eax.txt
+(gdb) rdr bt -o ./bt.txt
+Note: if saving in a file is needed for subsequent opening in vim or less for more convenient viewing and paging, then the "file step" is redundant, because gdb's output can be redirected right to these programs, see redirection to less.
+
+Share
+Edit
+Follow
+edited Jul 22, 2022 at 19:01
+answered Jul 22, 2022 at 18:39
+MiniMax's user avatar
+MiniMax
+1,10322 gold badges1010 silver badges2727 bronze badges
+Add a comment
+5
+
+Somewhere around gdb 8+, the pipe command was introduced. Adapting the docs to your problem:
+
+(gdb) pipe print myobj | tee ~/tmp/gdb.obj.out
+...
+(gdb) pipe thread apply all bt | tee ~/tmp/gdb.stacks.out
+...
+Share
+Edit
+Follow
+answered Jun 14, 2024 at 6:21
+Aktau's user avatar
+Aktau
+1,9362323 silver badges3131 bronze badges
+Add a comment
+4
+
+I had a backtrace that was so long (over 100k lines) that holding down the enter key was taking too long. I found a solution to that:
+
+Andreas Schneider's bt command writes a backtrace to file without any user interaction – just prefix your command with bt .
+
+Here, I've turned it into a script:
+
+#!/usr/bin/env bash
+ex=(
+    -ex "run"
+    -ex "set logging overwrite on" 
+    -ex "set logging file gdb.bt" 
+    -ex "set logging on" 
+    -ex "set pagination off"
+    -ex "handle SIG33 pass nostop noprint"
+    -ex "echo backtrace:\n"
+    -ex "backtrace full"
+    -ex "echo \n\nregisters:\n"
+    -ex "info registers"
+    -ex "echo \n\ncurrent instructions:\n"
+    -ex "x/16i \$pc"
+    -ex "echo \n\nthreads backtrace:\n"
+    -ex "thread apply all backtrace"
+    -ex "set logging off"
+    -ex "quit"
+)
+echo 0 | gdb -batch-silent "${ex[@]}" --args "$@"
+Share
+Edit
+Follow
+answered Sep 15, 2020 at 12:06
+user2394284's user avatar
+user2394284
+6,12444 gold badges3636 silver badges4343 bronze badges
+Add a comment
+2
+
+Although there are many good answers here, I still have to post the only thing that worked for me:
+
+[niko@my-laptop]# gdb MyBinary 2>&1 log.txt
+This was the only way to get gdb and binary output into the same log.txt file, while also seeing it on the console.
+
+EDIT:
+
+Caution: Output seems to be partially not synced among the gdb output and the binary output. Can someone confirm? You might want to check whether your telnet/ssh client has a function to log the output that you see in your console.
+
+Share
+Edit
+Follow
+edited Feb 13, 2019 at 10:29
+answered Feb 13, 2019 at 8:37
+Niko's user avatar
+Niko
+67277 silver badges1212 bronze badges
+Add a comment
+2
+
+You've had multiple answers here. They are corrects. I just want to add a command that will help you to collect all the output at once. This really helpful when your collecting a huge backtrace. Before doing any logging configuration, do this:
+
+(gdb)set height 0
+I found it on this article: https://askaralikhan.blogspot.com/2016/05/gdb-all-threads-bt-to-file.html?showComment=1584614942454#c4584028195226351332

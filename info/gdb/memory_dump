@@ -1,0 +1,547 @@
+""" https://stackoverflow.com/questions/9233095/memory-dump-formatted-like-xxd-from-gdb
+Asked 13 years, 5 months ago
+Modified 2 years, 9 months ago
+Viewed 70k times
+
+Report this ad
+65
+
+I'm trying to inspect a buffer which contains a binary formatted message, but also contains string data. As an example, I'm using this C code:
+
+int main (void) {
+    char buf[100] = "\x01\x02\x03\x04String Data\xAA\xBB\xCC";
+
+    return 0;
+}
+I'd like to get a hex dump of what's in buf, of a format similar to xxd (I don't care if it's an exact match, what I'm really looking for is a hex dump side by side with printable chars).
+
+Inside GDB I can use something like:
+
+(gdb) x /100bx buf
+0x7fffffffdf00: 0x01    0x02    0x03    0x04    0x53    0x74    0x72    0x69
+0x7fffffffdf08: 0x6e    0x67    0x20    0x44    0x61    0x74    0x61    0xaa
+0x7fffffffdf10: 0xbb    0xcc    0x00    0x00    0x00    0x00    0x00    0x00
+0x7fffffffdf18: 0x00    0x00    0x00    0x00    0x00    0x00    0x00    0x00
+0x7fffffffdf20: 0x00    0x00    0x00    0x00    0x00    0x00    0x00    0x00
+0x7fffffffdf28: 0x00    0x00    0x00    0x00    0x00    0x00    0x00    0x00
+0x7fffffffdf30: 0x00    0x00    0x00    0x00    0x00    0x00    0x00    0x00
+0x7fffffffdf38: 0x00    0x00    0x00    0x00    0x00    0x00    0x00    0x00
+0x7fffffffdf40: 0x00    0x00    0x00    0x00    0x00    0x00    0x00    0x00
+0x7fffffffdf48: 0x00    0x00    0x00    0x00    0x00    0x00    0x00    0x00
+0x7fffffffdf50: 0x00    0x00    0x00    0x00    0x00    0x00    0x00    0x00
+0x7fffffffdf58: 0x00    0x00    0x00    0x00    0x00    0x00    0x00    0x00
+which is fine, but it's hard to pick out strings that way... or I can use
+
+(gdb) x /100bs buf
+0x7fffffffdf00:  "\001\002\003\004String Data\252\273\314"
+0x7fffffffdf13:  ""
+0x7fffffffdf14:  ""
+0x7fffffffdf15:  ""
+0x7fffffffdf16:  ""
+0x7fffffffdf17:  ""
+...
+which makes it hard to read the binary part... the actual messages I'm dealing with have plenty of ascii nul's in them, too, so really it just looks like a mess.
+
+The best I can come up with is to do this:
+
+(gdb) dump binary memory dump.bin buf buf+100
+and then
+
+$ xxd dump.bin
+0000000: 0102 0304 5374 7269 6e67 2044 6174 61aa  ....String Data.
+0000010: bbcc 0000 0000 0000 0000 0000 0000 0000  ................
+0000020: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+0000030: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+0000040: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+0000050: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+0000060: 0000 0000                                ....
+but that's a pain to do that every time. I figured somebody out there has wanted this before, so wondering if anybody has found a way to do it inside gdb. Plus you lose the addresses from the original memory this way.
+
+I'm using GDB 7.4 with python support built in, so I'm open to the idea of using a pretty printer or similar, but I don't know how to set that up.
+
+pythondebugginggdbpretty-print
+Share
+Improve this question
+Follow
+asked Feb 10, 2012 at 18:47
+FatalError's user avatar
+FatalError
+54.9k1616 gold badges106106 silver badges119119 bronze badges
+Add a comment
+5 Answers
+Sorted by:
+
+Highest score (default)
+105
+
+(gdb) define xxd
+>dump binary memory dump.bin $arg0 $arg0+$arg1
+>shell xxd dump.bin
+>end
+(gdb) xxd &j 10 
+0000000: 0000 0000 0000 0000 0000 0000 4d8c a7f7  ............M...
+0000010: ff7f 0000 0000 0000 0000 0000 c8d7 ffff  ................
+0000020: ff7f 0000 0000 0000
+Seems easy enough ;-)
+
+You could likely write a Python script (modern GDB versions have embedded Python interpreter) to do the same, and get rid of the need to "shell out".
+
+Update:
+
+Here is a possible Python implementation (save this into xxd.py):
+
+class XXD(gdb.Command):
+  def __init__(self):
+    super(XXD, self).__init__("xxd", gdb.COMMAND_USER)
+
+  def _PrintLine(self, offset, bytes, size):
+      print('{:08x}: '.format(offset), end='')
+      todo = size
+      while todo >= 4:
+        print(''.join('{:02x}'.format(b) for b in bytes[0:4]), end='')
+        todo -= 4
+        bytes = bytes[3:]
+        if todo:
+          print(' ', end='')
+
+      # Print any remaining bytes
+      print(''.join('{:02x}'.format(b) for b in bytes[0:todo]), end='')
+
+      print()
+      return size
+
+  def invoke(self, arg, from_tty):
+    args = arg.split()
+    if len(args) != 2:
+      print("xxd: <addr> <count>")
+      return
+    size = int(args[1])
+    addr = gdb.parse_and_eval(args[0])
+    inferior = gdb.inferiors()[0]
+    bytes = inferior.read_memory(addr, size).tobytes()
+
+    offset = int(addr)
+    while size > 0:
+      n = self._PrintLine(offset, bytes, min(len(bytes), 16))
+      size -= n
+      offset += n
+      bytes = bytes[n:]
+
+XXD()
+Use it like so:
+
+// Sample program x.c
+char foo[] = "abcdefghijklmopqrstuvwxyz";
+int main() { return 0; }
+
+gcc -g x.c
+gdb -q ./a.out
+
+(gdb) source xxd.py
+Temporary breakpoint 1, main () at x.c:3
+3       int main() { return 0; }
+
+(gdb) xxd &foo[0] 18
+00404030: 61626364 64656667 6768696a 6a6b6c6d
+00404040: 7273
+Share
+Improve this answer
+Follow
+edited Oct 2, 2022 at 21:52
+answered Feb 10, 2012 at 19:56
+Employed Russian's user avatar
+Employed Russian
+216k3636 gold badges322322 silver badges392392 bronze badges
+Ah, good thinking. Didn't realize it was that easy to add shortcuts like that into GDB. I ended up coding this up in python like you mentioned, but I'm sure I'll be able to put that idiom to use. – 
+FatalError
+ CommentedFeb 11, 2012 at 4:18
+3
+Note that if $arg0 is a pointer to a struct, then $arg1 will be treated as a count of objects, not bytes. Use ((void *)$arg0)+$arg1 instead of $arg0+$arg1 if that's going to be a problem. – 
+Roger Lipscombe
+ CommentedJan 30, 2018 at 10:34
+2
+Also note that newer versions of xxd support the -o flag, which adds an offset to the address values displayed. – 
+Roger Lipscombe
+ CommentedJan 30, 2018 at 10:35
+This has the major inconvenient of not preserving addresses! (I would recommened adding the addres -o flag as suggested by Roger) – 
+cbodt
+ CommentedApr 19, 2018 at 12:55
+For anyone running FreeBSD, replace shell xxd dump.bin with shell hd dump.bin – 
+Rahul Bharadwaj
+ CommentedFeb 20, 2024 at 19:51
+Add a comment
+
+Report this ad
+37
+
+So, I ended up playing around with the python interface and came up with this:
+
+import gdb
+from curses.ascii import isgraph
+
+def groups_of(iterable, size, first=0):
+    first = first if first != 0 else size
+    chunk, iterable = iterable[:first], iterable[first:]
+    while chunk:
+        yield chunk
+        chunk, iterable = iterable[:size], iterable[size:]
+
+class HexDump(gdb.Command):
+    def __init__(self):
+        super (HexDump, self).__init__ ('hex-dump', gdb.COMMAND_DATA)
+
+    def invoke(self, arg, from_tty):
+        argv = gdb.string_to_argv(arg)
+        if len(argv) != 2:
+            raise gdb.GdbError('hex-dump takes exactly 2 arguments.')
+        addr = gdb.parse_and_eval(argv[0]).cast(
+            gdb.lookup_type('void').pointer())
+        try:
+            bytes = int(gdb.parse_and_eval(argv[1]))
+        except ValueError:
+            raise gdb.GdbError('Byte count numst be an integer value.')
+
+        inferior = gdb.selected_inferior()
+
+        align = gdb.parameter('hex-dump-align')
+        width = gdb.parameter('hex-dump-width')
+        if width == 0:
+            width = 16
+
+        mem = inferior.read_memory(addr, bytes)
+        pr_addr = int(str(addr), 16)
+        pr_offset = width
+
+        if align:
+            pr_offset = width - (pr_addr % width)
+            pr_addr -= pr_addr % width
+
+        for group in groups_of(mem, width, pr_offset):
+            print '0x%x: ' % (pr_addr,) + '   '*(width - pr_offset),
+            print ' '.join(['%02X' % (ord(g),) for g in group]) + \
+                '   ' * (width - len(group) if pr_offset == width else 0) + ' ',
+            print ' '*(width - pr_offset) +  ''.join(
+                [g if isgraph(g) or g == ' ' else '.' for g in group])
+            pr_addr += width
+            pr_offset = width
+
+class HexDumpAlign(gdb.Parameter):
+    def __init__(self):
+        super (HexDumpAlign, self).__init__('hex-dump-align',
+                                            gdb.COMMAND_DATA,
+                                            gdb.PARAM_BOOLEAN)
+
+    set_doc = 'Determines if hex-dump always starts at an "aligned" address (see hex-dump-width'
+    show_doc = 'Hex dump alignment is currently'
+
+class HexDumpWidth(gdb.Parameter):
+    def __init__(self):
+        super (HexDumpWidth, self).__init__('hex-dump-width',
+                                            gdb.COMMAND_DATA,
+                                            gdb.PARAM_INTEGER)
+
+    set_doc = 'Set the number of bytes per line of hex-dump'
+
+    show_doc = 'The number of bytes per line in hex-dump is'
+
+HexDump()
+HexDumpAlign()
+HexDumpWidth()
+I realize it might not be the most beautiful and elegant solution, but it gets the job done and works as a first draft. It could be included in ~/.gdbinit like:
+
+python
+sys.path.insert(0, '/path/to/module/dir')
+import hexdump
+end
+Then could be used with the program above like so:
+
+(gdb) hex-dump buf 100
+0x7fffffffdf00:  01 02 03 04 53 74 72 69 6E 67 20 44 61 74 61 AA  ....String Data.
+0x7fffffffdf10:  BB CC 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+0x7fffffffdf20:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+0x7fffffffdf30:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+0x7fffffffdf40:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+0x7fffffffdf50:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+0x7fffffffdf60:  00 00 00 00                                      ....
+And a few other touches for good measure:
+
+(gdb) set hex-dump-align on
+Determines if hex-dump always starts at an "aligned" address (see hex-dump-width
+(gdb) hex-dump &buf[5] 95
+0x7fffffffdf00:                 74 72 69 6E 67 20 44 61 74 61 AA       tring Data.
+0x7fffffffdf10:  BB CC 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+0x7fffffffdf20:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+0x7fffffffdf30:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+0x7fffffffdf40:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+0x7fffffffdf50:  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+0x7fffffffdf60:  00 00 00 00                                      ....
+
+(gdb) set hex-dump-width 8
+Set the number of bytes per line of hex-dump
+(gdb) hex-dump &buf[5] 95
+0x7fffffffdf00:                 74 72 69       tri
+0x7fffffffdf08:  6E 67 20 44 61 74 61 AA  ng Data.
+0x7fffffffdf10:  BB CC 00 00 00 00 00 00  ........
+0x7fffffffdf18:  00 00 00 00 00 00 00 00  ........
+0x7fffffffdf20:  00 00 00 00 00 00 00 00  ........
+0x7fffffffdf28:  00 00 00 00 00 00 00 00  ........
+0x7fffffffdf30:  00 00 00 00 00 00 00 00  ........
+0x7fffffffdf38:  00 00 00 00 00 00 00 00  ........
+0x7fffffffdf40:  00 00 00 00 00 00 00 00  ........
+0x7fffffffdf48:  00 00 00 00 00 00 00 00  ........
+0x7fffffffdf50:  00 00 00 00 00 00 00 00  ........
+0x7fffffffdf58:  00 00 00 00 00 00 00 00  ........
+0x7fffffffdf60:  00 00 00 00              ....
+No promises that there aren't bugs :). I might stick it up in github or something if people are interested.
+
+I've only tested it with GDB 7.4.
+
+Share
+Improve this answer
+Follow
+answered Feb 11, 2012 at 3:22
+FatalError's user avatar
+FatalError
+54.9k1616 gold badges106106 silver badges119119 bronze badges
+3
++1 since this solution preserves the original address, very handy ! – 
+Shmil The Cat
+ CommentedMar 31, 2014 at 15:09
+I'm getting an ImportError: no module named hexdump error – 
+haneefmubarak
+ CommentedMar 18, 2015 at 3:57
+1
+Nice, few things work "out of the box" like that on a first draft! I'm putting mine in /usr/local/lib/gdb/hexdump.py – 
+Daniel Santos
+ CommentedApr 3, 2015 at 9:33
+3
+This is awesome. However, I had to update the line: pr_addr = int(str(addr), 16) to pr_addr = int(str(addr).split()[0], 16) – 
+Kieran
+ CommentedJan 7, 2016 at 17:45
+2
+For python 3 you need all 3 print calls joined into one print(...), and use g.decode('utf-8') if isgraph(ord(g)) or g == b' ' – 
+patraulea
+ CommentedApr 28, 2022 at 13:27 
+Show 2 more comments
+9
+
+My own contribution, from Employed Russian solution and Roger Lipscombe comments:
+
+use xxd,
+preserve the address (xxd -o)
+size argument is optional
+small documentation included
+The script (tested with gdb 7.8.1):
+
+define xxd
+  if $argc < 2
+    set $size = sizeof(*$arg0)
+  else
+    set $size = $arg1
+  end
+  dump binary memory dump.bin $arg0 ((void *)$arg0)+$size
+  eval "shell xxd -o %d dump.bin; rm dump.bin", ((void *)$arg0)
+end
+document xxd
+  Dump memory with xxd command (keep the address as offset)
+
+  xxd addr [size]
+    addr -- expression resolvable as an address
+    size -- size (in byte) of memory to dump
+            sizeof(*addr) is used by default
+end
+Examples:
+
+(gdb) p &m_data
+$1 = (data_t *) 0x200130dc <m_data>
+
+(gdb) p sizeof(m_data)
+$2 = 32
+
+(gdb) xxd &m_data 32
+200130dc: 0300 0000 e87c 0400 0000 0000 0100 0000  .....|..........
+200130ec: 0c01 0000 b831 0020 0100 0000 0100 0000  .....1. ........
+
+(gdb) xxd &m_data
+200130dc: 0300 0000 e87c 0400 0000 0000 0100 0000  .....|..........
+200130ec: 0c01 0000 b831 0020 0100 0000 0100 0000  .....1. ........
+
+(gdb) help xxd
+  Dump memory with xxd command (keep the address as offset)
+
+  xxd addr [size]
+    addr -- expression resolvable as an address
+    size -- size (in byte) of memory to dump
+            sizeof(*addr) is used by default
+Share
+Improve this answer
+Follow
+answered Feb 20, 2019 at 10:35
+Ek1noX's user avatar
+Ek1noX
+49366 silver badges1313 bronze badges
+1
+Nice! Alas, xxd's -o option isn't available in legacy versions like those in Centos7, so if anyone gets an xxd help page instead, that's why. You can instead use od --traditional -A x -t x1z -Ax dump.bin +0 +$1 which will print both raw and offset addresses. – 
+Craig Ringer
+ CommentedApr 27, 2021 at 5:13 
+1
+Actually, eval "shell od --traditional -t x1z -A x dump.bin +0 +%p", (void*)($arg0) will do the job. – 
+Craig Ringer
+ CommentedApr 27, 2021 at 5:40 
+Add a comment
+
+Report this ad
+5
+
+an adapted version of the solution of User FatalError
+
+works with python 3
+added a hex-col-header
+length parameter optional
+renamed to hd
+examples
+
+hd 0xbfffe4f1
+
+hd 0xbfffe4f1 500
+
+import gdb
+from curses.ascii import isgraph
+
+def groups_of(iterable, size, first=0):
+    first = first if first != 0 else size
+    chunk, iterable = iterable[:first], iterable[first:]
+    while chunk:
+        yield chunk
+        chunk, iterable = iterable[:size], iterable[size:]
+
+class HexDump(gdb.Command):
+    def __init__(self):
+        super (HexDump, self).__init__ ('hd', gdb.COMMAND_DATA)
+
+    def invoke(self, arg, from_tty):
+        argv = gdb.string_to_argv(arg)
+
+        addr = gdb.parse_and_eval(argv[0]).cast(
+            gdb.lookup_type('void').pointer())
+        if len(argv) == 2:
+             try:
+                 bytes = int(gdb.parse_and_eval(argv[1]))
+             except ValueError:
+                 raise gdb.GdbError('Byte count numst be an integer value.')
+        else:
+             bytes = 500
+
+        inferior = gdb.selected_inferior()
+
+        align = gdb.parameter('hex-dump-align')
+        width = gdb.parameter('hex-dump-width')
+        if width == 0:
+            width = 16
+
+        mem = inferior.read_memory(addr, bytes)
+        pr_addr = int(str(addr), 16)
+        pr_offset = width
+
+        if align:
+            pr_offset = width - (pr_addr % width)
+            pr_addr -= pr_addr % width
+        start=(pr_addr) & 0xff;
+
+
+        print ('            ' , end="")
+        print ('  '.join(['%01X' % (i&0x0f,) for i in range(start,start+width)]) , end="")
+        print ('  ' , end="")       
+        print (' '.join(['%01X' % (i&0x0f,) for i in range(start,start+width)]) )
+
+        for group in groups_of(mem, width, pr_offset):
+            print ('0x%x: ' % (pr_addr,) + '   '*(width - pr_offset), end="")
+            print (' '.join(['%02X' % (ord(g),) for g in group]) + \
+                '   ' * (width - len(group) if pr_offset == width else 0) + ' ', end="")    
+            print (' '*(width - pr_offset) +  ' '.join(
+                [chr( int.from_bytes(g, byteorder='big')) if isgraph( int.from_bytes(g, byteorder='big')   ) or g == ' ' else '.' for g in group]))
+            pr_addr += width
+            pr_offset = width
+
+class HexDumpAlign(gdb.Parameter):
+    def __init__(self):
+        super (HexDumpAlign, self).__init__('hex-dump-align',
+                                            gdb.COMMAND_DATA,
+                                            gdb.PARAM_BOOLEAN)
+
+    set_doc = 'Determines if hex-dump always starts at an "aligned" address (see hex-dump-width'
+    show_doc = 'Hex dump alignment is currently'
+
+class HexDumpWidth(gdb.Parameter):
+    def __init__(self):
+        super (HexDumpWidth, self).__init__('hex-dump-width',
+                                            gdb.COMMAND_DATA,
+                                            gdb.PARAM_INTEGER)
+
+    set_doc = 'Set the number of bytes per line of hex-dump'
+
+    show_doc = 'The number of bytes per line in hex-dump is'
+
+HexDump()
+HexDumpAlign()
+HexDumpWidth()
+Share
+Improve this answer
+Follow
+edited Nov 27, 2015 at 20:16
+answered Nov 27, 2015 at 20:05
+gunthor's user avatar
+gunthor
+21644 silver badges55 bronze badges
+This has bugs in Rust as void pointer is not an existent type – 
+Yet Another User
+ CommentedApr 6, 2021 at 11:57
+Add a comment
+1
+
+Unfortunately, @FatalError's and @gunthor's versions didn't work for me, so I wrote yet another one myself. This is how it looks like:
+
+(gdb) xxd hello_string 0xc
+00000001_00000f87:                  48 656c 6c6f 0957 6f72         Hello.Wor
+00000001_00000f90: 6c64 0a                                  ld.
+Newer versions of xxd supports the -o flag that allows specifying an offset to add to the displayed one (which will always start at 0000000).
+
+In case xxd -o isn't available, here is a substitute that correctly aligns and shows address of the location that is xxd'd.
+
+The xxd command:
+
+define xxd
+    dump binary memory /tmp/dump.bin $arg0 $arg0+$arg1
+    eval "shell xxd-o %p /tmp/dump.bin", $arg0
+end
+The arguably ugly perl script xxd-o (xxd with offset):
+
+#!/usr/bin/env perl
+use IPC::Open2; 
+$SIG{'__WARN__'} = sub{ die "$0: $!\n" };
+
+my $offset = shift // "0";
+$offset = oct($offset) if $offset =~ /^0/;
+my $base = $offset >= 2**32 ? 16 : 8;
+
+my $zeroes = $offset % 16;
+my $padding = 1 + int($zeroes / 2) + 2*$zeroes;
+my $bytestr = "\0" x $zeroes;
+{ local $/; $bytestr .= <> }
+
+open2(\*XXD_OUT, \*XXD_IN, "xxd") or die "xxd is not available!";
+print XXD_IN $bytestr; close XXD_IN;
+
+if ($zeroes) {
+    $_ = <XXD_OUT>;
+    s/^(.{50}).{$zeroes}/$1 . (' ' x $zeroes)/ge;
+    s/^([[:xdigit:]]+:).{$padding}/$1 . (' ' x $padding)/ge;
+    my $newoff = sprintf("%0${base}x",hex($1)+$offset) =~ s/^(.{8})(.{8})$/$1_$2/r;
+    s/^([[:xdigit:]]+):/$newoff:/g;
+    print
+}
+while (<XXD_OUT>) {
+    s/^([[:xdigit:]]+)(?=:)/sprintf("%0${base}x", hex($1)+$offset-$offset%16) =~ s[^(.{8})(.{8})$][$1_$2]r/ge;
+    print
+}
+Improvements welcome! :-) """

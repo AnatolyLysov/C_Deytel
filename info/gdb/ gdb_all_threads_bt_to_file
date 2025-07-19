@@ -1,0 +1,26 @@
+https://askaralikhan.blogspot.com/2016/05/gdb-all-threads-bt-to-file.html?showComment=1584614942454#c4584028195226351332
+
+gdb all threads bt to file
+Perform the following steps to collect a backtrace from a core dump for all threads.
+
+Find the core file and the executable that created.
+
+Start gdb in the directory where the log file should be created:
+
+By default, gdb will create a logfile called gdb.txt in the current working directory when logging is enabled.  Optionally, specify a different logfile name with this command:
+
+Enable logging by running the following commands:
+
+(gdb) set height 0
+(gdb) set logging file /tmp/thread_apply_all_bt.txt
+(gdb) set logging on
+Copying output to /tmp/thread_apply_all_bt.txt
+
+
+Request a backtrace:
+
+(gdb) thread apply all bt full
+
+
+Exit gdb by running the quit command, or press Ctrl-D.
+Collect the logfile.
