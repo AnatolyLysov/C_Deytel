@@ -301,3 +301,11 @@ gef➤run
 
 gdb output will send to gdb.txt
 ----------------------------------
+ASSEMBLER
+
+sudo apt update
+sudo apt install build-essential gdb nasm
+----
+info file : writing_and_debugging
+
+mkdir my_asm_project

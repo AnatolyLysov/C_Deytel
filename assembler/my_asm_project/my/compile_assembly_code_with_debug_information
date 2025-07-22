@@ -1,0 +1,88 @@
+To compile assembly code with debug information, you typically use an assembler like `as` (the GNU assembler) or a compiler like `gcc` that can handle assembly code. Below are the steps to compile assembly code with debug information using both methods.
+
+### Using `gcc` to Compile Assembly Code
+
+If you have assembly code in a file (e.g., `my_program.s`), you can compile it with debug information using `gcc` as follows:
+
+1. **Write your Assembly Code**: Save your assembly code in a file, for example, `my_program.s`.
+
+2. **Compile with Debug Information**: Use the `-g` flag to include debug information when compiling. The command would look like this:
+
+   ```bash
+   gcc -g -o my_program my_program.s
+   ```
+
+   - `-g`: This option tells the compiler to include debug information in the executable.
+   - `-o my_program`: This specifies the output file name.
+
+3. **Run GDB**: You can then run GDB on the compiled program:
+
+   ```bash
+   gdb ./my_program
+   ```
+
+### Using `as` to Assemble and Link
+
+If you prefer to use `as` directly, you can follow these steps:
+
+1. **Write your Assembly Code**: Save your assembly code in a file, for example, `my_program.s`.
+
+2. **Assemble with Debug Information**: Use the `-g` option with `as` to generate debug information:
+
+   ```bash
+   as -g -o my_program.o my_program.s
+   ```
+
+3. **Link the Object File**: After assembling, you need to link the object file to create an executable. You can use `ld` for this:
+
+   ```bash
+   ld -o my_program my_program.o
+   ```
+
+4. **Run GDB**: After linking, you can run GDB on the executable:
+
+   ```bash
+   gdb ./my_program
+   ```
+
+### Example Assembly Code
+
+Here’s a simple example of assembly code (`my_program.s`) that you can use to test the compilation:
+
+```assembly
+.section .data
+msg:    .asciz "Hello, World!\n"
+
+.section .text
+.global _start
+
+_start:
+    ; Write message to stdout
+    mov $1, %rax          ; syscall: write
+    mov $1, %rdi          ; file descriptor: stdout
+    mov $msg, %rsi        ; pointer to message
+    mov $13, %rdx         ; message length
+    syscall
+
+    ; Exit program
+    mov $60, %rax         ; syscall: exit
+    xor %rdi, %rdi        ; exit code: 0
+    syscall
+```
+
+### Compiling the Example Code
+
+1. Save the above code to `my_program.s`.
+2. Compile it with:
+
+   ```bash
+   gcc -g -o my_program my_program.s
+   ```
+
+3. Run GDB:
+
+   ```bash
+   gdb ./my_program
+   ```
+
+Now you can debug your assembly program using GDB with the debug information included.

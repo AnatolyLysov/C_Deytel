@@ -1,0 +1,345 @@
+Exploring Stacks and Heaps using gdb-gef
+ShudarsanRegmi
+ShudarsanRegmi
+
+Follow
+8 min read
+·
+Jun 7, 2024
+9
+
+
+
+
+
+
+In my journey of exploring the various aspects of computer science including cybersecurity what I’ve came across is that those people who are learning to work with system programming or who have just started to explore the advanced programming concepts are not really clear with how stacks and heaps look like. They’ve just heard the explanation of how stack works on the surface level and they doubt on their real existence. So, today I want to take them a step closer so that they can seen it clearly and believe on their existence.
+
+The aim of this article is to visually explore the stacks and heaps with gdb-gef. This article is targeted for the people who are exploring the advanced concepts of programming, doing system programming or learning the security aspects or solving Capture The Flag(CTF) challenges.
+
+Table of Contents
+Introduction
+Prerequisites
+Installation
+Process memory layout
+Little bit more about stack
+Little bit more about heap
+Comprehensive gdb-gef guide to explore stack and heaps along with a sample test program
+
+Introduction
+GDB is a portable debugger that allows to see what is going on inside a program. With a debugger you can pause the execution of a program at any line you want (breakpoints) see state (value of variables, etc.) of your program at that point. gef is an extension to gdb that makes the gdb ui more visually appealing and provides more commands and functions than that of GNU-GDB.
+
+Prerequisites
+Tools and installations required (GDB, GEF)
+Basic concept of debugging and memory layout in programs
+
+Installation
+# install the gcc compiler and gdb debugger
+sudo apt install gcc gdb 
+
+# install gef with the below command
+bash -c "$(wget https://gef.blah.cat/sh -O -)"
+If any problem occurs during installation refer these:
+https://hugsy.github.io/gef/install/
+
+Brief overview of process memory layout
+When a program is loaded into the RAM, it is called as process. A process requires resources such as memory, cpu, disk, IO devices to run properly. Among these, memory is the fundamental and the most important resource. The program itself is loaded into a portion of memory known as code segment. The other portions are BSS(Block Starting Symbol) segment Data segment, Stack and Heap.
+
+Code Segment: Also known as text segment is where the executable code is loaded in the memory.
+Data Segment: Contains the values of initialised global and static variables
+BSS Segment: Contains the uninitialized variables
+Stack: Holds the local variables of a subroutine or function
+Heap: Holds the dynamic memory
+
+A little bit more about stack
+Stack is a LIFO data structure that is used by processes to store the local variables of a subroutine or functions. The stack pointer register(sp) in the CPU points to the top of the stack. Stack typically grows from higher memory address to lower memory address in most architectures. Each time a value is pushed or popped from the stack, the sp is modified to point to the top of the new/modified stack. The set of variables pushed for one function is called as a stack frame. A stack frame at minimum contains the return (address from where function was called) in the calling function so that after the execution of that function code can go back to the calling function and continue its further execution.
+
+Little bit more about heap
+A heap for a process is the portion of memory which is used for dynamic memory allocation. Sometimes we do not know what size of input is going to be there before compilation, so programmer cannot define the size of memory required for that input. This may be the case when taking input from input devices or when fetching data from the network. In these scenarios memory is allocated dynamically at runtime. C provides functions like malloc, calloc, realloc, free , etc. to work with dynamic memory(or to make use of heap).
+
+Sample Program for explanation
+We’ll use the below program to explore the stacks and heaps of our program(better say process).
+
+#include <stdio.h>
+#include <stdlib.h>
+
+
+int main() {
+ int x = 5;
+ int y = 10;
+ 
+ char stack_string1[10];
+ char stack_string2[10];
+
+ char *heap_string1;
+ char *heap_string2;
+
+ printf("Enter stack string 1: \n");
+ gets(stack_string1);
+ printf("Enter stack string 2: \n");
+ gets(stack_string2);
+ 
+ heap_string1 = malloc(10);
+ heap_string2 = malloc(10);
+ 
+ printf("Enter heap string 1: \n");
+ gets(heap_string1);
+ printf("Enter heap string 2: \n");
+ gets(heap_string2);
+ 
+ return 0;
+
+}
+The above program does following things:
+1. Creates two integer variables x and y and set the values as 5(0x5) and 10(0xa) respectively.
+2. Creates two character arrays named stack_string1 and stack_string2, each of length 10
+3. Creates two variables that points to the heap, each pointing the beginning of two address each of length 10
+
+Compile the program and open in gdb
+
+gcc -g -o out ./file.c # -g flag is used to include debugging information in the executable
+gdb ./out
+After the program is loaded in gdb-gef, set the breakpoint to the main
+
+break main 
+Use run command to run your program
+
+
+After this you’ll start to see three important section from the output of gdb-gef
+
+The registers segment displays information about your cpu registers, stack segment displays information about the stack segment of the program and the code segment displays the assembly version of the compiled(binary) code.
+
+
+Import xxd in gdb for better view of memory
+
+(gdb) define xxd
+>dump binary memory dump.bin $arg0 $arg0+$arg1
+>shell xxd dump.bin
+>end
+# now you can use xxd command to view the hexdump around some memory location
+Get information about local variables with info locals
+
+
+We’re seeing error for heap strings because memory has not been allocated yet.
+
+Get the address of where these variables are stored in stack
+
+
+We can use the p command followed by &variable_name to get the address of that variable. Take a note of address of each variable:
+
+x = 0x7fffffffe048
+y = 0x7fffffffe04c
+stack_string1 = 0x7fffffffe064
+stack_string2 = 0x7fffffffe06e
+heap_strig1 = 0x7fffffffe050
+heap_string2 = 0x7fffffffe058
+use vmmap command to find which portion of memory is allocated for stacks, code segments and heap.
+
+
+If you look closely you can find out the following important information:
+
+
+Code segment starts from 0x0000555555555000 and ends at 0x0000555555556000. So the compiled code lines in between the given range.
+Stack segment is in the range 0x00007ffffffde000–0x00007ffffffff000
+Note: At this point we cannot see the heap because the dynamic memory has not been allocated yet.
+
+Up to now we’ve collected the following information:
+
+
+Now run the n instruction a couple of times so that x and y variables are initialized.
+After running if we go and check stack segment and look for address 0xe048 and 0xe04e
+
+
+You can see that the address has been initialized with the value of variables. x = 5 (0x00000005) and y = 10 (0x0000000a)
+
+We can visualize this in a better with hexdump byte $sp command. This displays the hexdump from the top of the stack for next 64 addresses.
+
+
+Now execute following set of commands
+
+n
+n
+Enter stack string 1:
+>ABCDEFGHI
+Enter stack string 2:
+abcdefghi
+I’ve entered ABCDEFGHI and abcdefghi as two inputs. Now let’s examine the stack again
+
+
+A better look with hexdump
+
+
+0x41, 0x42 and so on are the ascii representations of A, B and so on.
+0x61, 0x62 and so on are the ascii representations of a,b and so on.
+
+Now, next proceed to a couple of lines with n command twice. After that the memory in the heap will be allocated.
+
+If you do info locals after that you’ll see that error has gone and heap_string1 and heap_string2 points to somewhere else in memory.
+
+
+Take note of two address in the heap where our heap_string1 and heap_string2 is stored.
+
+heap_string1 = 0x555555559ac0
+heap_string2 = 0x555555559ae0
+# heap_string1 and heap_string2 are pointer variabes. That's why they're keeping the address and those addresses points to the heap.If you do vmmap now, you can see that a portion of meory with read and write permission has been allocated. This memory is exacly what is called as heap. 
+
+Now, lets give it a place in our memory layout. It should be somewhere after code segment and above the stack segment.
+
+
+Seeing the same thing from stack segment
+
+
+Lets use xxd to examine the heap before we keep anything there.
+
+
+It’s just blank there for now. There could be some garbage value as well.
+
+The address (0x555555559ac0) we used in xxd command is the value of heap_string1 variable
+
+Now, lets proceed a few steps ahead and keep something in our heap memory.
+
+Like above for stack variables. I’ve done same thing for heap variables* as well.
+
+n
+n
+Enter heap string 1:
+>ABCDEFGHI
+Enter heap string 2:
+abcdefghi
+Now let’s examine our heap with hexdump command.
+
+
+We can see both the strings in the heap with the above single command itself.
+
+That’s all!
+
+I’ve tried my best to take you closer to the stacks and heaps. Understanding these concepts is really crucial if you’re in the field of software enginneering, programming and cybersecurity. I would like to express my gratitude for reading this article. Thank you!
+
+Stacks And Heaps
+Gdb
+Gdb Gef
+Program Memory Layout
+Gnu Gdb And Stack
+9
+
+
+
+
+
+ShudarsanRegmi
+Written by ShudarsanRegmi
+3 followers
+·
+4 following
+
+Follow
+No responses yet
+Анатолий Лысов
+Анатолий Лысов
+﻿
+
+Cancel
+Respond
+More from ShudarsanRegmi
+ShudarsanRegmi
+ShudarsanRegmi
+
+The Change In Programming Trends: From StackOverflow to ChatGPT Era
+Hello, Namaste, everyone! Today, I’m excited to share this article on a topic close to my experience. As a learner who has had the chance…
+Oct 30, 2024
+1
+
+
+The Change In Programming Trends: From StackOverflow to ChatGPT Era
+See all from ShudarsanRegmi
+Recommended from Medium
+GPT-5 Is Coming in July 2025 — And Everything Will Change
+Predict
+In
+
+Predict
+
+by
+
+iswarya writes
+
+GPT-5 Is Coming in July 2025 — And Everything Will Change
+“It’s wild watching people use ChatGPT… knowing what’s coming.”  — OpenAI insider
+
+Jul 8
+8.5K
+283
+
+
+Why Japanese Developers Write Code Completely Differently (And Why It Works Better)
+Sohail Saifi
+Sohail Saifi
+
+Why Japanese Developers Write Code Completely Differently (And Why It Works Better)
+I’ve been studying Japanese software development practices for the past three years, and what I discovered completely changed how I think…
+
+4d ago
+4.4K
+132
+
+
+I Gave 2 Hours Daily to DSA & System Design, Best Decision Ever
+Himanshu Singour
+Himanshu Singour
+
+I Gave 2 Hours Daily to DSA & System Design, Best Decision Ever
+I had 1.5 years of experience and still felt lost during interviews, confused in meetings, and unsure about my skills. I didn’t need a…
+Jul 10
+2.8K
+71
+
+
+This new IDE from Google is an absolute game changer
+Coding Beauty
+In
+
+Coding Beauty
+
+by
+
+Tari Ibaba
+
+This new IDE from Google is an absolute game changer
+This new IDE from Google is seriously revolutionary.
+
+Mar 11
+6.1K
+367
+
+
+I’ll Instantly Know You Used Chat Gpt If I See This
+Long. Sweet. Valuable.
+In
+
+Long. Sweet. Valuable.
+
+by
+
+Ossai Chinedum
+
+I’ll Instantly Know You Used Chat Gpt If I See This
+Trust me you’re not as slick as you think
+
+May 16
+16.9K
+962
+
+
+Docker Is Dead — And It’s About Time
+Abhinav
+Abhinav
+
+Docker Is Dead — And It’s About Time
+Docker changed the game when it launched in 2013, making containers accessible and turning “Dockerize it” into a developer catchphrase.
+
+Jun 9
+2.8K
+59
+
+
+See more recommendations

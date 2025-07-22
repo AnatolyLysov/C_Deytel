@@ -1,0 +1,135 @@
+Writing and debugging x86/x64 assembly code in Ubuntu using GDB (GNU Debugger) and Visual Studio Code (VS Code) involves several steps. Below, I’ll guide you through the process, including setting up your environment, writing assembly code, compiling it, and debugging with GDB.
+
+### 1. Setting Up Your Environment
+
+#### Install Required Tools
+Make sure you have the required tools installed on your Ubuntu system:
+
+```bash
+sudo apt update
+sudo apt install build-essential gdb nasm
+```
+
+- **`build-essential`**: Installs essential packages for building software, including GCC.
+- **`gdb`**: The GNU Debugger.
+- **`nasm`**: The Netwide Assembler, a popular assembler for x86 architecture.
+
+#### Install Visual Studio Code
+If you haven't already installed Visual Studio Code, you can do so from the official website or via the terminal:
+
+```bash
+sudo snap install --classic code
+```
+
+### 2. Writing Assembly Code
+
+Create a new directory for your project and open it in VS Code:
+
+```bash
+mkdir my_asm_project
+cd my_asm_project
+code .
+```
+
+Create a new file, for example, `main.asm`, and write your assembly code. Here’s a simple example of an x86_64 assembly program that prints "Hello, World!" to the console:
+
+```asm
+section .data
+    hello db 'Hello, World!', 0
+
+section .text
+    global _start
+
+_start:
+    ; Write the string to stdout
+    mov rax, 1          ; syscall: sys_write
+    mov rdi, 1          ; file descriptor: stdout
+    mov rsi, hello      ; pointer to the string
+    mov rdx, 13         ; length of the string
+    syscall             ; invoke operating system to do the write
+
+    ; Exit the program
+    mov rax, 60         ; syscall: sys_exit
+    xor rdi, rdi        ; exit code 0
+    syscall             ; invoke operating system to exit
+```
+
+### 3. Compiling the Assembly Code
+
+You need to assemble and link your code. You can do this using `nasm` and `ld` (the GNU linker). Run the following commands in the terminal:
+
+```bash
+nasm -f elf64 -o main.o main.asm    # Assemble the code
+ld -o main main.o                   # Link the object file to create an executable
+```
+
+### 4. Debugging with GDB
+
+To debug your program with GDB, you can start it with your executable:
+
+```bash
+gdb ./main
+```
+
+#### Basic GDB Commands
+
+Once inside GDB, you can use the following commands:
+
+- **Run the program**: `run`
+- **Set a breakpoint**: `break _start` (or at any line number)
+- **Step through the code**: `step` (or `s`) to step into functions, `next` (or `n`) to go to the next line
+- **Inspect registers**: `info registers`
+- **Inspect memory**: `x/20x $rsp` (for example, to examine memory at the stack pointer)
+- **Continue execution**: `continue` (or `c`)
+- **Quit GDB**: `quit`
+
+### 5. Example Debugging Session
+
+Here’s a brief example of how a debugging session might look:
+
+1. Start GDB with your program:
+
+   ```bash
+   gdb ./main
+   ```
+
+2. Set a breakpoint at the `_start` label:
+
+   ```gdb
+   (gdb) break _start
+   ```
+
+3. Run the program:
+
+   ```gdb
+   (gdb) run
+   ```
+
+4. Step through the code:
+
+   ```gdb
+   (gdb) step
+   ```
+
+5. Inspect registers or memory if needed:
+
+   ```gdb
+   (gdb) info registers
+   (gdb) x/20x $rsp
+   ```
+
+6. Continue execution until the program exits:
+
+   ```gdb
+   (gdb) continue
+   ```
+
+7. Quit GDB:
+
+   ```gdb
+   (gdb) quit
+   ```
+
+### Conclusion
+
+By following these steps, you can effectively write and debug x86/x64 assembly code using GDB and Visual Studio Code on Ubuntu. Be sure to explore GDB's extensive documentation for more advanced debugging techniques and commands. Happy coding!

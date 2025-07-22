@@ -1,0 +1,33 @@
+The message you're seeing indicates that GDB (the GNU Debugger) is configured to support automatic downloading of debug information from the specified URL, but that feature has been disabled. If you'd like to fix this issue and enable debug information downloading, you can follow these steps:
+
+1. **Enable Debuginfod**: To enable debuginfod, you can run the following command in your GDB session:
+
+   ```
+   set debuginfod enabled on
+   ```
+
+2. **Make the Change Permanent**: If you want this setting to persist across GDB sessions, you need to add the command to your `.gdbinit` file. You can do this by following these steps:
+
+   a. Open (or create) the `.gdbinit` file in your home directory:
+
+   ```bash
+   nano ~/.gdbinit
+   ```
+
+   b. Add the following line to the file:
+
+   ```
+   set debuginfod enabled on
+   ```
+
+   c. Save and exit the editor (in nano, you can do this by pressing `CTRL + X`, then `Y`, and then `Enter`).
+
+3. **Restart GDB**: After making these changes, restart GDB to see if the debuginfod feature is now enabled.
+
+If you prefer to keep debuginfod disabled, you can leave it as is, but if you want to suppress the warning message, you can add the following line to your `.gdbinit` file:
+
+```
+set debuginfod enabled off
+```
+
+This will make the setting permanent and stop the warning from appearing in future GDB sessions.

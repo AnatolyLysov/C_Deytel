@@ -1,0 +1,101 @@
+sudo apt update
+sudo apt install build-essential gdb nasm
+
+nasm -f elf64 -o main.o main.asm    # Assemble the code
+
+create a new file, for example, `main.asm`, and write your assembly code.
+
+nasm -f elf64 -o main.o main.asm    # Assemble the code
+ld -o main main.o                   # Link the object file to create an executable
+
+gdb ./main
+
+Once inside GDB, you can use the following commands:
+
+- **Run the program**: `run`
+- **Set a breakpoint**: `break _start` (or at any line number)
+- **Step through the code**: `step` (or `s`) to step into functions, `next` (or `n`) to go to the next line
+- **Inspect registers**: `info registers`
+- **Inspect memory**: `x/20x $rsp` (for example, to examine memory at the stack pointer)
+- **Continue execution**: `continue` (or `c`)
+- **Quit GDB**: `quit`
+
+gef➤  run
+Starting program: /home/aikidance/C_Deytel/assembler/my_asm_project/main 
+
+This GDB supports auto-downloading debuginfo from the following URLs:
+  <https://debuginfod.ubuntu.com>
+Debuginfod has been disabled.
+To make this setting permanent, add 'set debuginfod enabled off' to .gdbinit.
+Hello, World![Inferior 1 (process 24530) exited normally]
+
+aikidance@aikidance:~/C_Deytel/assembler/my_asm_project$ cd ~
+aikidance@aikidance:~$ nano ~/.gdbinit
+aikidance@aikidance:~$ cd /home/aikidance/C_Deytel/assembler/my_asm_project
+aikidance@aikidance:~/C_Deytel/assembler/my_asm_project$
+
+gdb ./main
+
+break _start
+
+run
+
+
+GNU gdb (Ubuntu 15.0.50.20240403-0ubuntu1) 15.0.50.20240403-git
+Copyright (C) 2024 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+[ Legend: Modified register | Code | Heap | Stack | String ]
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── registers ────
+$rax   : 0x0               
+$rbx   : 0x0               
+$rcx   : 0x0               
+$rdx   : 0x0               
+$rsp   : 0x00007fffffffd4c0  →  0x0000000000000001
+$rbp   : 0x0               
+$rsi   : 0x0               
+$rdi   : 0x0               
+$rip   : 0x0000000000401000  →  <_start+0000> mov eax, 0x1
+$r8    : 0x0               
+$r9    : 0x0               
+$r10   : 0x0               
+$r11   : 0x0               
+$r12   : 0x0               
+$r13   : 0x0               
+$r14   : 0x0               
+$r15   : 0x0               
+$eflags: [zero carry parity adjust sign trap INTERRUPT direction overflow resume virtualx86 identification]
+$cs: 0x33 $ss: 0x2b $ds: 0x00 $es: 0x00 $fs: 0x00 $gs: 0x00 
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── stack ────
+0x00007fffffffd4c0│+0x0000: 0x0000000000000001   ← $rsp
+0x00007fffffffd4c8│+0x0008: 0x00007fffffffd7b4  →  "/home/aikidance/C_Deytel/assembler/my_asm_project/[...]"
+0x00007fffffffd4d0│+0x0010: 0x0000000000000000
+0x00007fffffffd4d8│+0x0018: 0x00007fffffffd7eb  →  "SHELL=/bin/bash"
+0x00007fffffffd4e0│+0x0020: 0x00007fffffffd7fb  →  "COLORTERM=truecolor"
+0x00007fffffffd4e8│+0x0028: 0x00007fffffffd80f  →  "WSL2_GUI_APPS_ENABLED=1"
+0x00007fffffffd4f0│+0x0030: 0x00007fffffffd827  →  "TERM_PROGRAM_VERSION=1.102.1"
+0x00007fffffffd4f8│+0x0038: 0x00007fffffffd844  →  "WSL_DISTRO_NAME=Ubuntu"
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── code:x86:64 ────
+     0x400ffa                  add    BYTE PTR [rax], al
+     0x400ffc                  add    BYTE PTR [rax], al
+     0x400ffe                  add    BYTE PTR [rax], al
+●→   0x401000 <_start+0000>    mov    eax, 0x1
+     0x401005 <_start+0005>    mov    edi, 0x1
+     0x40100a <_start+000a>    movabs rsi, 0x402000
+     0x401014 <_start+0014>    mov    edx, 0xd
+     0x401019 <_start+0019>    syscall 
+     0x40101b <_start+001b>    mov    eax, 0x3c
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── threads ────
+[#0] Id 1, Name: "main", stopped 0x401000 in _start (), reason: BREAKPOINT
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── trace ────
+[#0] 0x401000 → _start()
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+gef➤  
+
+------------------------------------------------
+compile_assembly_code_with_debug_information
+
+info file: compile_assembly_code_with_debug_information
+
+a
+
