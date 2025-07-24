@@ -1,0 +1,79 @@
+The command you've provided is used to assemble a NASM (Netwide Assembler) source file (`main.s`) into an object file (`main.o`) for the 64-bit ELF (Executable and Linkable Format) target. The `-g` option indicates that debugging information should be included in the object file, which is useful for debugging with tools like `gdb`.
+
+### Breakdown of the Command
+
+- **`nasm`**: This is the command to invoke the NASM assembler.
+  
+- **`-f elf64`**: This option specifies the output format of the object file. In this case, `elf64` indicates that the output will be in the 64-bit ELF format, which is standard for 64-bit Linux applications.
+
+- **`-g`**: This flag tells NASM to include debugging information in the output file. This information allows debuggers to provide useful insights into the program, such as variable names and line numbers.
+
+- **`main.s`**: This is the input source file written in NASM assembly language. The `.s` extension typically indicates an assembly source file.
+
+- **`-o main.o`**: This option specifies the output filename. Here, `main.o` will be the object file created by NASM.
+
+### Example Usage
+
+Here's how you might use this command in a typical workflow:
+
+1. **Create Your Assembly Source File** (e.g., `main.s`):
+
+```nasm
+section .data
+    msg db 'Hello, World!', 0  ; Null-terminated string
+
+section .text
+    global _start
+
+_start:
+    ; Write the message to stdout
+    mov rax, 1          ; syscall number for sys_write
+    mov rdi, 1          ; file descriptor 1 is stdout
+    mov rsi, msg        ; pointer to the message
+    mov rdx, 13         ; message length
+    syscall             ; call kernel
+
+    ; Exit the program
+    mov rax, 60         ; syscall number for sys_exit
+    xor rdi, rdi        ; exit code 0
+    syscall             ; call kernel
+```
+
+2. **Assemble the Code**:
+
+Run the command you provided:
+
+```bash
+nasm -f elf64 -g main.s -o main.o
+```
+
+3. **Link the Object File**:
+
+Use a linker (like `ld`) to create an executable. You can also include debugging information here:
+
+```bash
+ld -o main main.o
+```
+
+4. **Run the Debugger**:
+
+Start `gdb` with your executable:
+
+```bash
+gdb ./main
+```
+
+### Debugging with GDB
+
+Once you are in `gdb`, you can use commands like:
+
+- `break _start`: Set a breakpoint at the start of the program.
+- `run`: Start running the program.
+- `step`: Step through the code line by line.
+- `print <variable>`: Inspect the value of a variable or register.
+- `continue`: Continue execution until the next breakpoint.
+- `quit`: Exit `gdb`.
+
+### Summary
+
+Using the command `nasm -f elf64 -g main.s -o main.o` allows you to assemble a NASM source file for 64-bit Linux with debugging information, making it easier to debug your assembly programs. If you have further questions or need additional examples, feel free to ask!

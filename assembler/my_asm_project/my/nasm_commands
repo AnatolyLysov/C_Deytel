@@ -1,0 +1,132 @@
+NASM (Netwide Assembler) is an assembler for the x86 architecture, commonly used for writing low-level programs in assembly language. 
+Here are some fundamental NASM commands and concepts to help you get started:
+
+### Basic Structure of a NASM Program
+
+A typical NASM program consists of several sections:
+
+1. **section .data**: This section is used for declaring initialized data or constants.
+2. **section .bss**: This section is for declaring variables that are not initialized.
+3. **section .text**: This section contains the code (instructions) of the program.
+
+### Common NASM Commands
+
+1. **section**: Defines a section of the program.
+   ```nasm
+   section .data
+   section .bss
+   section .text
+   ```
+
+2. **global**: Makes a symbol accessible from other modules (usually used for functions).
+   ```nasm
+   global _start
+   ```
+
+3. **_start**: This is the entry point of the program, where execution begins.
+   ```nasm
+   _start:
+   ```
+
+4. **mov**: Moves data from one place to another.
+   ```nasm
+   mov eax, 5      ; Move the value 5 into the EAX register
+   ```
+
+5. **add**: Adds two values.
+   ```nasm
+   add eax, 3      ; Add 3 to the value in EAX
+   ```
+
+6. **sub**: Subtracts one value from another.
+   ```nasm
+   sub eax, 2      ; Subtract 2 from the value in EAX
+   ```
+
+7. **mul**: Multiplies two values (unsigned).
+   ```nasm
+   mov ebx, 4      ; Move 4 into EBX
+   mul ebx         ; EAX = EAX * EBX
+   ```
+
+8. **div**: Divides two values (unsigned).
+   ```nasm
+   mov ebx, 2      ; Move 2 into EBX
+   div ebx         ; EAX = EAX / EBX
+   ```
+
+9. **cmp**: Compares two values.
+   ```nasm
+   cmp eax, ebx    ; Compare EAX with EBX
+   ```
+
+10. **jmp**: Jumps to a specified label.
+    ```nasm
+    jmp label_name  ; Jump to the label
+    ```
+
+11. **je, jne, jl, jle, jg, jge**: Conditional jumps based on the result of the last comparison.
+    ```nasm
+    je equal_label   ; Jump if equal
+    jne not_equal    ; Jump if not equal
+    ```
+
+12. **call**: Calls a procedure (function).
+    ```nasm
+    call my_function ; Call a function named my_function
+    ```
+
+13. **ret**: Returns from a procedure.
+    ```nasm
+    ret              ; Return from the function
+    ```
+
+14. **int**: Triggers a software interrupt (often used for system calls).
+    ```nasm
+    int 0x80        ; Call a Linux system call (for example)
+    ```
+
+### Example Program
+
+Here’s a simple example of a NASM program that exits cleanly:
+
+```nasm
+section .data
+    msg db 'Hello, World!', 0  ; Null-terminated string
+
+section .text
+    global _start
+
+_start:
+    ; Write the message to stdout
+    mov eax, 4          ; syscall number for sys_write
+    mov ebx, 1          ; file descriptor 1 is stdout
+    mov ecx, msg        ; pointer to the message
+    mov edx, 13         ; message length
+    int 0x80            ; call kernel
+
+    ; Exit the program
+    mov eax, 1          ; syscall number for sys_exit
+    xor ebx, ebx        ; exit code 0
+    int 0x80            ; call kernel
+```
+
+### Assembling and Running a NASM Program
+
+1. **Assemble the program**: Use NASM to convert the assembly code into an object file.
+   ```bash
+   nasm -f elf32 my_program.asm -o my_program.o
+   ```
+
+2. **Link the object file**: Use a linker to create an executable.
+   ```bash
+   ld -m elf_i386 my_program.o -o my_program
+   ```
+
+3. **Run the executable**:
+   ```bash
+   ./my_program
+   ```
+
+This is a basic overview of NASM commands and how to structure a simple assembly program. If you have specific questions 
+or need further details on any topic, feel free to ask!

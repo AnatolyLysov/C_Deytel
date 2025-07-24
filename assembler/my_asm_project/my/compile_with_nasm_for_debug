@@ -1,0 +1,79 @@
+To compile and link a NASM program for debugging, you typically want to include debugging information in the object file. This allows you to use a debugger (like `gdb`) to inspect the program's execution, view variables, and step through the code. Here’s how to do it step by step:
+
+### Step 1: Write Your NASM Code
+
+Create your NASM source file (e.g., `my_program.asm`). Here’s a simple example:
+
+```nasm
+section .data
+    msg db 'Hello, World!', 0  ; Null-terminated string
+
+section .text
+    global _start
+
+_start:
+    ; Write the message to stdout
+    mov eax, 4          ; syscall number for sys_write
+    mov ebx, 1          ; file descriptor 1 is stdout
+    mov ecx, msg        ; pointer to the message
+    mov edx, 13         ; message length
+    int 0x80            ; call kernel
+
+    ; Exit the program
+    mov eax, 1          ; syscall number for sys_exit
+    xor ebx, ebx        ; exit code 0
+    int 0x80            ; call kernel
+```
+
+### Step 2: Assemble with Debugging Information
+
+When you assemble your NASM program, use the `-g` option to include debugging information:
+
+```bash
+nasm -f elf32 -g my_program.asm -o my_program.o
+```
+
+### Step 3: Link the Object File
+
+Link the object file to create an executable. You can use the `ld` command. However, for debugging, you may want to include the `-g` option to preserve debugging information:
+
+```bash
+ld -m elf_i386 -g my_program.o -o my_program
+```
+
+### Step 4: Run the Debugger
+
+Now you can run your program using a debugger like `gdb`. Start `gdb` with your executable:
+
+```bash
+gdb ./my_program
+```
+
+### Step 5: Using GDB
+
+Inside `gdb`, you can use various commands to debug your program:
+
+- **Run the program**: Type `run` to start the program.
+- **Set breakpoints**: Use `break <line_number>` or `break <function_name>` to set breakpoints.
+- **Step through code**: Use `step` to execute the next line of code and `next` to step over function calls.
+- **Inspect variables**: Use `print <variable_name>` to view the value of variables.
+- **Continue execution**: Use `continue` to resume execution until the next breakpoint.
+
+### Example GDB Commands
+
+```gdb
+(gdb) break _start       ; Set a breakpoint at the start
+(gdb) run                 ; Run the program
+(gdb) step                ; Step into the next instruction
+(gdb) print eax           ; Print the value of the EAX register
+(gdb) continue             ; Continue execution
+(gdb) quit                ; Exit gdb
+```
+
+### Summary
+
+1. Assemble with `-g` to include debugging information.
+2. Link with `-g` to preserve that information.
+3. Use `gdb` to run and debug your program.
+
+By following these steps, you can effectively compile and debug your NASM programs. If you have any more questions or need further assistance, feel free to ask!
