@@ -313,7 +313,7 @@ mkdir my_asm_project
 26.07.25
 info file: Inserting_assembly_code_into_C_code
 
-gcc -c myasm.s  # Compile the assembly code, akl: комментарии удалил
-gcc -c main.c   # Compile the C code
-gcc -o myprogram main.o myasm.o  # Link the object files
-gcc ./myprogram
+ gcc -c add_numbers.s                   # Compile the assembly code, akl: комментарии удалил
+gcc -c  main.c                          # Compile the C code
+ggcc -o myprogram main.o add_numbers.o  # Link the object files
+./myprogram
