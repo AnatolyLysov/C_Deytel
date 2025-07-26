@@ -310,10 +310,33 @@ info file : writing_and_debugging
 
 mkdir my_asm_project
 -----------------------------------------------------------
-26.07.25
-info file: Inserting_assembly_code_into_C_code
 
- gcc -c myasm.s                   # Compile the assembly code, akl: комментарии удалил
-gcc -c  main.c                          # Compile the C code
-gcc -o myprogram main.o myasm.o  # Link the object files
-./myprogram
+26.07.25
+
+info file: segmentation_fauled
+
+main.c
+
+#include <stdio.h>
+-----
+// Declare the external assembly function
+extern int add_numbers(int a, int b);
+
+int main() {
+    int result = add_numbers(5, 3);  // Call the assembly function
+    printf("Result: %d\n", result);   // Print the result
+    return 0;
+}
+---
+add_numbers.s
+
+    .globl add_numbers
+add_numbers:
+    movl %edi, %eax
+    addl %esi, %eax
+    return
+---
+
+aikidance@aikidance:~/C_Deytel/assembler/insert_assembler_code_into_c_code$ gcc -o myprogram main.c add_numbers.s
+aikidance@aikidance:~/C_Deytel/assembler/insert_assembler_code_into_c_code$ ./myprogram
+--------------

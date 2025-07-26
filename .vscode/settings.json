@@ -1,6 +1,7 @@
 {
     "files.associations": {
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "segmentation_fauled": "c"
     },
     "cmake.sourceDirectory": "/home/aikidance/C_Deytel/Part12_data_strutures/page530"
 }
