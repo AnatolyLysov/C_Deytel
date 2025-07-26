@@ -1,3 +1,4 @@
+/*
 A segmentation fault (“core dumped”) usually means your program is trying to access memory incorrectly. In your code from main.c:
 
 C
@@ -47,3 +48,4 @@ Summary:
 The segmentation fault happens because add_numbers is missing. Define it in C or assembly, recompile, 
 and your program will work. If you want help with a specific assembly implementation, 
 let me know your system (Windows, Linux, Mac, 32-bit or 64-bit)!
+*/
