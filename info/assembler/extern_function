@@ -1,4 +1,5 @@
-To declare an external function that is written in assembly (assembler) in your C code, you need to use the `extern` keyword in C. This informs the C compiler that the function is defined in another file (in this case, an assembly file). Here’s how to do it step by step:
+To declare an external function that is written in assembly (assembler) in your C code, you need to use the `extern` keyword in C. 
+This informs the C compiler that the function is defined in another file (in this case, an assembly file). Here’s how to do it step by step:
 
 ### Step 1: Write the Assembly Function
 
@@ -49,12 +50,18 @@ Finally, you can run your program:
 
 ### Explanation of the Declaration
 
-- `extern int add_numbers(int a, int b);`: This line declares the `add_numbers` function, indicating that it takes two integers as parameters and returns an integer. The `extern` keyword tells the C compiler that the definition of this function is located in another file (in this case, the assembly file).
+- `extern int add_numbers(int a, int b);`: This line declares the `add_numbers` function, indicating that it takes 
+two integers as parameters 
+and returns an integer. The `extern` keyword tells the C compiler that the definition of this function is located in another 
+file (in this case, the assembly file).
 
 ### Important Notes
 
-1. **Calling Convention**: Make sure that the calling conventions used in your assembly code match those used by your C compiler. For GCC on x86, the calling convention typically involves passing arguments on the stack.
-2. **Function Naming**: The name of the function in the assembly code should match the name used in the C declaration. If you're using a different name in assembly (due to name mangling or other reasons), make sure to adjust the C declaration accordingly.
-3. **Linker**: Ensure that the assembly file is compiled and linked properly with the C code so that the linker can resolve the reference to the `add_numbers` function.
+1. **Calling Convention**: Make sure that the calling conventions used in your assembly code match those used by your C compiler. 
+For GCC on x86, the calling convention typically involves passing arguments on the stack.
+2. **Function Naming**: The name of the function in the assembly code should match the name used in the C declaration. 
+If you're using a different name in assembly (due to name mangling or other reasons), make sure to adjust the C declaration accordingly.
+3. **Linker**: Ensure that the assembly file is compiled and linked properly with the C code so that the linker 
+can resolve the reference to the `add_numbers` function.
 
 By following these steps, you can successfully declare and use an external function written in assembly within your C code.
