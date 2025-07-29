@@ -1,0 +1,66 @@
+To compile an assembly program using NASM (Netwide Assembler) for debugging, you need to generate an object file with debugging information. Here’s how you can do it step by step:
+
+1. **Write your Assembly Code**: Create a file with your assembly code. For example, `program.asm`.
+
+2. **Compile with NASM**: Use the `-g` option to generate debugging information. You can also specify the output format (e.g., ELF, COFF) based on your system. Here's a command to compile for Linux (ELF format):
+
+   ```bash
+   nasm -f elf64 -g program.asm -o program.o
+   ```
+
+   - `-f elf64`: Specifies the output format (for 64-bit Linux).
+   - `-g`: Generates debugging information.
+
+3. **Link the Object File**: Use a linker (like `ld` for Linux) to create an executable. You may not need any special flags for debugging, but it’s common to include the `-o` option to specify the output executable name:
+
+   ```bash
+   ld -o program program.o
+   ```
+
+4. **Debugging**: You can use a debugger like `gdb` to debug your program. Start `gdb` with your executable:
+
+   ```bash
+   gdb ./program
+   ```
+
+5. **Set Breakpoints and Run**: Inside `gdb`, you can set breakpoints, run the program, and inspect variables. For example:
+
+   ```gdb
+   (gdb) break main      # Set a breakpoint at the main function
+   (gdb) run             # Run the program
+   ```
+
+### Example
+
+Here’s a simple example:
+
+**program.asm**:
+```asm
+section .data
+    msg db 'Hello, World!', 0
+
+section .text
+    global _start
+
+_start:
+    ; write(1, msg, 13)
+    mov rax, 1          ; syscall: write
+    mov rdi, 1          ; file descriptor: stdout
+    mov rsi, msg        ; pointer to message
+    mov rdx, 13         ; message length
+    syscall
+
+    ; exit(0)
+    mov rax, 60         ; syscall: exit
+    xor rdi, rdi        ; status: 0
+    syscall
+```
+
+**Compile and Run**:
+```bash
+nasm -f elf64 -g program.asm -o program.o
+ld -o program program.o
+gdb ./program
+```
+
+Now you can debug your program in `gdb`.

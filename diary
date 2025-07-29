@@ -341,5 +341,10 @@ add_numbers:
 aikidance@aikidance:~/C_Deytel/assembler/insert_assembler_code_into_c_code$ gcc -o myprogram main.c add_numbers.s
 aikidance@aikidance:~/C_Deytel/assembler/insert_assembler_code_into_c_code$ ./myprogram
 --------------
-nasm Стооляров
+29.7.25
+BITO
 
+aikidance@aikidance://home/aikidance/C_Deytel/assembler/my_asm_project$ nasm -f elf64 -g main.asm -o main.o
+aikidance@aikidance://home/aikidance/C_Deytel/assembler/my_asm_project$ld -o main main.o
+aikidance@aikidance://home/aikidance/C_Deytel/assembler/my_asm_project$ gdb ./main
+---

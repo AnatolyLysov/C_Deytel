@@ -1,5 +1,5 @@
 section .data
-    hello db 'Hello, World!', 0
+    hello db 'Hello, World!', 0 ; Null-terminated string
 
 section .text
     global _start

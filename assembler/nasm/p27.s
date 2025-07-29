@@ -1,8 +1,8 @@
 %include "stud_io.inc"
-global _start
+globl p27
 
 section .text
-_start: mov eax, 0
+p27: mov eax, 0
 again: PRINT "Hello"
     PUTCHAR 10
     inc eax
