@@ -347,4 +347,33 @@ BITO
 aikidance@aikidance://home/aikidance/C_Deytel/assembler/my_asm_project$ nasm -f elf64 -g main.asm -o main.o
 aikidance@aikidance://home/aikidance/C_Deytel/assembler/my_asm_project$ld -o main main.o
 aikidance@aikidance://home/aikidance/C_Deytel/assembler/my_asm_project$ gdb ./main
+
+gef➤  b main.asm:9
+gef➤ run
+-----------------------------------------------------------
+x32
+aikidance@aikidance:~/C_Deytel/assembler/nasm$ nasm -f elf32 -g p27.asm
+aikidance@aikidance:~/C_Deytel/assembler/nasm$ ld -m elf_i386 p27.o -o p27
+aikidance@aikidance:~/C_Deytel/assembler/nasm$ ./p27
+Hello
+Hello
+Hello
+Hello
+Hello
 ---
+gef➤  b p27.asm:2
+Breakpoint 1 at 0x8049000: file p27.asm, line 4
+gef➤  run
+
+     1  %include "stud_io.inc"
+●     2  global _start
+      3  section .text
+ →    4  _start: mov eax, 0
+      5  again: PRINT "Hello"
+      6  PUTCHAR 10
+      7  inc eax
+      8  cmp eax, 5
+      9  jl again
+      
+
+

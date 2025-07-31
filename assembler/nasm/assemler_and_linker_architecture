@@ -1,0 +1,35 @@
+The error message you're encountering indicates that there is a mismatch between the architecture of the object file (`p27.o`) and the architecture expected by the linker (which is targeting x86-64). This typically happens when you're trying to assemble and link code for different architectures.
+
+To resolve this issue, you need to ensure that both the assembler and the linker are targeting the same architecture. If your intention is to create a 32-bit application, you can specify the architecture explicitly when using `nasm` and `ld`.
+
+### Solution:
+
+1. **Assemble with NASM for 32-bit:**
+   Use the `-f elf32` option to assemble your code for 32-bit architecture.
+
+   ```bash
+   nasm -f elf32 -g p27.asm
+   ```
+
+2. **Link with LD for 32-bit:**
+   Use the `-m elf_i386` option with `ld` to specify that you are linking a 32-bit object file.
+
+   ```bash
+   ld -m elf_i386 p27.o -o p27
+   ```
+
+### Complete Commands:
+
+Here are the complete commands you should run:
+
+```bash
+nasm -f elf32 -g p27.asm
+ld -m elf_i386 p27.o -o p27
+```
+
+### Additional Notes:
+
+- Make sure that your assembly code (`p27.asm`) is compatible with 32-bit architecture.
+- If you need to create a 64-bit application instead, you should adjust the commands to use `-f elf64` for NASM and link normally without specifying `-m elf_i386`.
+
+If you follow these steps, it should resolve the architecture mismatch error you are experiencing.
